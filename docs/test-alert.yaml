@@ -1,0 +1,6 @@
+apiVersion: pager.k8s.co/v1alpha1
+kind: Alert
+metadata:
+  name: cncf-test-alert
+spec:
+  message: "Uh-oh, things aren't looking great..."
