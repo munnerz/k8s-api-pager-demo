@@ -105,7 +105,6 @@ func Convert_pager_AlertList_To_v1alpha1_AlertList(in *pager.AlertList, out *Ale
 }
 
 func autoConvert_v1alpha1_AlertSpec_To_pager_AlertSpec(in *AlertSpec, out *pager.AlertSpec, s conversion.Scope) error {
-	out.Recipient = in.Recipient
 	out.Message = in.Message
 	return nil
 }
@@ -116,7 +115,6 @@ func Convert_v1alpha1_AlertSpec_To_pager_AlertSpec(in *AlertSpec, out *pager.Ale
 }
 
 func autoConvert_pager_AlertSpec_To_v1alpha1_AlertSpec(in *pager.AlertSpec, out *AlertSpec, s conversion.Scope) error {
-	out.Recipient = in.Recipient
 	out.Message = in.Message
 	return nil
 }

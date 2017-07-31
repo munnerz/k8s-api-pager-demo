@@ -27,8 +27,7 @@ type AlertList struct {
 }
 
 type AlertSpec struct {
-	Recipient string `json:"recipient"`
-	Message   string `json:"message"`
+	Message string `json:"message"`
 }
 
 type AlertStatus struct {

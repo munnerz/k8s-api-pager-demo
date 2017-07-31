@@ -10,7 +10,7 @@ type Alert struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
 
-	Spec AlertSpec
+	Spec   AlertSpec
 	Status AlertStatus
 }
 
@@ -24,7 +24,6 @@ type AlertList struct {
 }
 
 type AlertSpec struct {
-	Recipient string
 	Message string
 }
 
