@@ -38,6 +38,9 @@ var (
 	// date results with less 'effort'
 	sharedFactory factory.SharedInformerFactory
 
+	// cl is a Kubernetes API client for our custom resource definition type
+	cl client.Interface
+
 	// pb is the pushbullet client to use to send alerts
 	pb *pushbullet.Pushbullet
 )
@@ -49,8 +52,9 @@ func main() {
 
 	log.Printf("Created pushbullet client.")
 
+	var err error
 	// create an instance of our own API client
-	cl, err := client.NewForConfig(&rest.Config{
+	cl, err = client.NewForConfig(&rest.Config{
 		Host: *apiserverURL,
 	})
 
@@ -99,6 +103,11 @@ func main() {
 }
 
 func sync(al *v1alpha1.Alert) error {
+	if al.Status.Sent {
+		log.Printf("Skipping already Sent alert '%s/%s'", al.Namespace, al.Name)
+		return nil
+	}
+
 	note := requests.NewNote()
 	note.Title = fmt.Sprintf("Kubernetes alert for %s/%s", al.Namespace, al.Name)
 	note.Body = al.Spec.Message
@@ -106,8 +115,14 @@ func sync(al *v1alpha1.Alert) error {
 	if _, err := pb.PostPushesNote(note); err != nil {
 		return fmt.Errorf("error sending pushbullet message: %s", err.Error())
 	}
-
 	log.Printf("Sent pushbullet note!")
+
+	al.Status.Sent = true
+
+	if _, err := cl.PagerV1alpha1().Alerts(al.Namespace).Update(al); err != nil {
+		return fmt.Errorf("error saving update to pager Alert resource: %s", err.Error())
+	}
+	log.Printf("Finished saving update to pager Alert resource '%s/%s'", al.Namespace, al.Name)
 
 	return nil
 }
