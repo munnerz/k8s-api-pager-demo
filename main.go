@@ -21,11 +21,13 @@ import (
 
 var (
 	// apiserverURL is the URL of the API server to connect to
-	apiserverURL    = flag.String("apiserver", "http://127.0.0.1:8001", "URL used to access the Kubernetes API server")
+	apiserverURL = flag.String("apiserver", "http://127.0.0.1:8001", "URL used to access the Kubernetes API server")
+	// pushbulletToken is the pushbullet API token to use
 	pushbulletToken = flag.String("pushbullet-token", "", "the api token to use to send pushbullet messages")
 
-	// queue is a queue of resources to be processed. It is the most simple of
-	// types of queue and performs no rate limiting.
+	// queue is a queue of resources to be processed. It performs exponential
+	// backoff rate limiting, with a minimum retry period of 5 seconds and a
+	// maximum of 1 minute.
 	queue = workqueue.NewRateLimitingQueue(workqueue.NewItemExponentialFailureRateLimiter(time.Second*5, time.Minute))
 
 	// stopCh can be used to stop all the informer, as well as control loops
@@ -48,6 +50,7 @@ var (
 func main() {
 	flag.Parse()
 
+	// create a client that can be used to send pushbullet notes
 	pb = pushbullet.New(*pushbulletToken)
 
 	log.Printf("Created pushbullet client.")
@@ -96,34 +99,47 @@ func main() {
 	}
 
 	log.Printf("Finished populating shared informer cache.")
-	// here we start just one worker reading objects of the queue. If you
+	// here we start just one worker reading objects off the queue. If you
 	// wanted to parallelize this, you could start many instances of the worker
 	// function, then ensure your application handles concurrency correctly.
 	work()
 }
 
+// sync will attempt to 'Sync' an alert resource. It checks to see if the alert
+// has already been sent, and if not will send it and update the resource
+// accordingly. This method is called whenever this controller starts, and
+// whenever the resource changes, and also periodically every resyncPeriod.
 func sync(al *v1alpha1.Alert) error {
+	// If this message has already been sent, we exit with no error
 	if al.Status.Sent {
 		log.Printf("Skipping already Sent alert '%s/%s'", al.Namespace, al.Name)
 		return nil
 	}
 
+	// create our note instance
 	note := requests.NewNote()
 	note.Title = fmt.Sprintf("Kubernetes alert for %s/%s", al.Namespace, al.Name)
 	note.Body = al.Spec.Message
 
+	// send the note. If an error occurs here, we return an error which will
+	// cause the calling function to re-queue the item to be tried again later.
 	if _, err := pb.PostPushesNote(note); err != nil {
 		return fmt.Errorf("error sending pushbullet message: %s", err.Error())
 	}
 	log.Printf("Sent pushbullet note!")
 
+	// as we've sent the note, we will update the resource accordingly.
+	// if this request fails, this item will be requeued and a second alert
+	// will be sent. It's therefore worth noting that this control loop will
+	// send you *at least one* alert, and not *at most one*.
 	al.Status.Sent = true
-
 	if _, err := cl.PagerV1alpha1().Alerts(al.Namespace).Update(al); err != nil {
 		return fmt.Errorf("error saving update to pager Alert resource: %s", err.Error())
 	}
 	log.Printf("Finished saving update to pager Alert resource '%s/%s'", al.Namespace, al.Name)
 
+	// we didn't encounter any errors, so we return nil to allow the callee
+	// to 'forget' this item from the queue altogether.
 	return nil
 }
 
@@ -173,6 +189,8 @@ func work() {
 			log.Printf("Got most up to date version of '%s/%s'. Syncing...", namespace, name)
 
 			// attempt to sync the current state of the world with the desired!
+			// If sync returns an error, we skip calling `queue.Forget`,
+			// thus causing the resource to be requeued at a later time.
 			if err := sync(obj); err != nil {
 				runtime.HandleError(fmt.Errorf("error processing item '%s/%s': %s", namespace, name, err.Error()))
 				return
