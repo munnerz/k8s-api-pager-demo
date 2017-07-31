@@ -1,0 +1,4 @@
+bin/
+.get_deps
+.generate_exes
+k8s-api-pager-demo
