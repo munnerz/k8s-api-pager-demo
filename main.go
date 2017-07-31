@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/mitsuse/pushbullet-go"
+	"github.com/mitsuse/pushbullet-go/requests"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
@@ -19,7 +21,8 @@ import (
 
 var (
 	// apiserverURL is the URL of the API server to connect to
-	apiserverURL = flag.String("apiserver", "http://127.0.0.1:8001", "URL used to access the Kubernetes API server")
+	apiserverURL    = flag.String("apiserver", "http://127.0.0.1:8001", "URL used to access the Kubernetes API server")
+	pushbulletToken = flag.String("pushbullet-token", "", "the api token to use to send pushbullet messages")
 
 	// queue is a queue of resources to be processed. It is the most simple of
 	// types of queue and performs no rate limiting.
@@ -29,11 +32,22 @@ var (
 	// within the application.
 	stopCh = make(chan struct{})
 
+	// sharedFactory is a shared informer factory that is used a a cache for
+	// items in the API server. It saves each informer listing and watching the
+	// same resources independently of each other, thus providing more up to
+	// date results with less 'effort'
 	sharedFactory factory.SharedInformerFactory
+
+	// pb is the pushbullet client to use to send alerts
+	pb *pushbullet.Pushbullet
 )
 
 func main() {
 	flag.Parse()
+
+	pb = pushbullet.New(*pushbulletToken)
+
+	log.Printf("Created pushbullet client.")
 
 	// create an instance of our own API client
 	cl, err := client.NewForConfig(&rest.Config{
@@ -43,6 +57,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("error creating api client: %s", err.Error())
 	}
+
+	log.Printf("Created Kubernetes client.")
 
 	// we use a shared informer from the informer factory, to save calls to the
 	// API as we grow our application and so state is consistent between our
@@ -67,6 +83,7 @@ func main() {
 	// start the informer. This will cause it to begin receiving updates from
 	// the configured API server and firing event handlers in response.
 	sharedFactory.Start(stopCh)
+	log.Printf("Started informer factory.")
 
 	// wait for the informe rcache to finish performing it's initial sync of
 	// resources
@@ -74,6 +91,7 @@ func main() {
 		log.Fatalf("error waiting for informer cache to sync: %s", err.Error())
 	}
 
+	log.Printf("Finished populating shared informer cache.")
 	// here we start just one worker reading objects of the queue. If you
 	// wanted to parallelize this, you could start many instances of the worker
 	// function, then ensure your application handles concurrency correctly.
@@ -81,7 +99,16 @@ func main() {
 }
 
 func sync(al *v1alpha1.Alert) error {
-	log.Printf("got alert! %+v", al)
+	note := requests.NewNote()
+	note.Title = fmt.Sprintf("Kubernetes alert for %s/%s", al.Namespace, al.Name)
+	note.Body = al.Spec.Message
+
+	if _, err := pb.PostPushesNote(note); err != nil {
+		return fmt.Errorf("error sending pushbullet message: %s", err.Error())
+	}
+
+	log.Printf("Sent pushbullet note!")
+
 	return nil
 }
 
@@ -118,6 +145,8 @@ func work() {
 				return
 			}
 
+			log.Printf("Read item '%s/%s' off workqueue. Processing...", namespace, name)
+
 			// retrieve the latest version in the cache of this alert
 			obj, err := sharedFactory.Pager().V1alpha1().Alerts().Lister().Alerts(namespace).Get(name)
 
@@ -126,11 +155,15 @@ func work() {
 				return
 			}
 
+			log.Printf("Got most up to date version of '%s/%s'. Syncing...", namespace, name)
+
 			// attempt to sync the current state of the world with the desired!
 			if err := sync(obj); err != nil {
 				runtime.HandleError(fmt.Errorf("error processing item '%s/%s': %s", namespace, name, err.Error()))
 				return
 			}
+
+			log.Printf("Finished processing '%s/%s' successfully! Removing from queue.", namespace, name)
 
 			// as we managed to process this successfully, we can forget it
 			// from the work queue altogether.
