@@ -21,6 +21,7 @@ package internalversion
 import (
 	internalclientset "github.com/munnerz/k8s-api-pager-demo/pkg/client/internalclientset"
 	internalinterfaces "github.com/munnerz/k8s-api-pager-demo/pkg/informers/internalversion/internalinterfaces"
+	pager "github.com/munnerz/k8s-api-pager-demo/pkg/informers/internalversion/pager"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
@@ -108,4 +109,10 @@ type SharedInformerFactory interface {
 	internalinterfaces.SharedInformerFactory
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
+
+	Pager() pager.Interface
+}
+
+func (f *sharedInformerFactory) Pager() pager.Interface {
+	return pager.New(f)
 }
