@@ -82,7 +82,7 @@ func Convert_pager_Test_To_v1alpha1_Test(in *pager.Test, out *Test, s conversion
 }
 
 func autoConvert_v1alpha1_TestList_To_pager_TestList(in *TestList, out *pager.TestList, s conversion.Scope) error {
-	out.ObjectMeta = in.ObjectMeta
+	out.ListMeta = in.ListMeta
 	out.Items = *(*[]pager.Test)(unsafe.Pointer(&in.Items))
 	return nil
 }
@@ -93,7 +93,7 @@ func Convert_v1alpha1_TestList_To_pager_TestList(in *TestList, out *pager.TestLi
 }
 
 func autoConvert_pager_TestList_To_v1alpha1_TestList(in *pager.TestList, out *TestList, s conversion.Scope) error {
-	out.ObjectMeta = in.ObjectMeta
+	out.ListMeta = in.ListMeta
 	if in.Items == nil {
 		out.Items = make([]Test, 0)
 	} else {
@@ -140,7 +140,7 @@ func Convert_pager_TestRun_To_v1alpha1_TestRun(in *pager.TestRun, out *TestRun, 
 }
 
 func autoConvert_v1alpha1_TestRunList_To_pager_TestRunList(in *TestRunList, out *pager.TestRunList, s conversion.Scope) error {
-	out.ObjectMeta = in.ObjectMeta
+	out.ListMeta = in.ListMeta
 	out.Items = *(*[]pager.TestRun)(unsafe.Pointer(&in.Items))
 	return nil
 }
@@ -151,7 +151,7 @@ func Convert_v1alpha1_TestRunList_To_pager_TestRunList(in *TestRunList, out *pag
 }
 
 func autoConvert_pager_TestRunList_To_v1alpha1_TestRunList(in *pager.TestRunList, out *TestRunList, s conversion.Scope) error {
-	out.ObjectMeta = in.ObjectMeta
+	out.ListMeta = in.ListMeta
 	if in.Items == nil {
 		out.Items = make([]TestRun, 0)
 	} else {
