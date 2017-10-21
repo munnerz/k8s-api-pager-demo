@@ -1,0 +1,20 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: test-controller-deployment
+  labels:
+    app: test-controller
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-controller
+  template:
+    metadata:
+      labels:
+        app: test-controller
+    spec:
+      containers:
+      - name: test-controller
+        image: srossross/k8s-test-controller:latest

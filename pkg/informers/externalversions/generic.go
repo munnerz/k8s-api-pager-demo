@@ -20,7 +20,7 @@ package externalversions
 
 import (
 	"fmt"
-	v1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
+	v1alpha1 "github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -51,9 +51,11 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=Pager, Version=V1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("alerts"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Pager().V1alpha1().Alerts().Informer()}, nil
+	// Group=Srossross, Version=V1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("tests"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Srossross().V1alpha1().Tests().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("testruns"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Srossross().V1alpha1().TestRuns().Informer()}, nil
 
 	}
 

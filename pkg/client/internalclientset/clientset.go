@@ -18,7 +18,7 @@ package internalclientset
 
 import (
 	glog "github.com/golang/glog"
-	pagerinternalversion "github.com/munnerz/k8s-api-pager-demo/pkg/client/internalclientset/typed/pager/internalversion"
+	pagerinternalversion "github.com/srossross/k8s-test-controller/pkg/client/internalclientset/typed/pager/internalversion"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

@@ -19,7 +19,7 @@ limitations under the License.
 package internalinterfaces
 
 import (
-	client "github.com/munnerz/k8s-api-pager-demo/pkg/client"
+	client "github.com/srossross/k8s-test-controller/pkg/client"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	cache "k8s.io/client-go/tools/cache"
 	time "time"

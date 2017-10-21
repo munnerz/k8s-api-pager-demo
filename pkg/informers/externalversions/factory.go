@@ -19,9 +19,9 @@ limitations under the License.
 package externalversions
 
 import (
-	client "github.com/munnerz/k8s-api-pager-demo/pkg/client"
-	internalinterfaces "github.com/munnerz/k8s-api-pager-demo/pkg/informers/externalversions/internalinterfaces"
-	pager "github.com/munnerz/k8s-api-pager-demo/pkg/informers/externalversions/pager"
+	client "github.com/srossross/k8s-test-controller/pkg/client"
+	internalinterfaces "github.com/srossross/k8s-test-controller/pkg/informers/externalversions/internalinterfaces"
+	srossross "github.com/srossross/k8s-test-controller/pkg/informers/externalversions/srossross"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
@@ -110,9 +110,9 @@ type SharedInformerFactory interface {
 	ForResource(resource schema.GroupVersionResource) (GenericInformer, error)
 	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
 
-	Pager() pager.Interface
+	Srossross() srossross.Interface
 }
 
-func (f *sharedInformerFactory) Pager() pager.Interface {
-	return pager.New(f)
+func (f *sharedInformerFactory) Srossross() srossross.Interface {
+	return srossross.New(f)
 }

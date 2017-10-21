@@ -17,7 +17,7 @@ limitations under the License.
 package fake
 
 import (
-	pagerinternalversion "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager"
+	pagerinternalversion "github.com/srossross/k8s-test-controller/pkg/apis/pager"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

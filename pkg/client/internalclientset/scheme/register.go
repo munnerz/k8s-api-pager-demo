@@ -17,7 +17,7 @@ limitations under the License.
 package scheme
 
 import (
-	pager "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/install"
+	pager "github.com/srossross/k8s-test-controller/pkg/apis/pager/install"
 	announced "k8s.io/apimachinery/pkg/apimachinery/announced"
 	registered "k8s.io/apimachinery/pkg/apimachinery/registered"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"

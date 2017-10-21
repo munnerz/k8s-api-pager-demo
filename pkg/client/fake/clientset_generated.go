@@ -17,9 +17,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/munnerz/k8s-api-pager-demo/pkg/client"
-	pagerv1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/typed/pager/v1alpha1"
-	fakepagerv1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/typed/pager/v1alpha1/fake"
+	clientset "github.com/srossross/k8s-test-controller/pkg/client"
+	srossrossv1alpha1 "github.com/srossross/k8s-test-controller/pkg/client/typed/srossross/v1alpha1"
+	fakesrossrossv1alpha1 "github.com/srossross/k8s-test-controller/pkg/client/typed/srossross/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -60,12 +60,12 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// PagerV1alpha1 retrieves the PagerV1alpha1Client
-func (c *Clientset) PagerV1alpha1() pagerv1alpha1.PagerV1alpha1Interface {
-	return &fakepagerv1alpha1.FakePagerV1alpha1{Fake: &c.Fake}
+// SrossrossV1alpha1 retrieves the SrossrossV1alpha1Client
+func (c *Clientset) SrossrossV1alpha1() srossrossv1alpha1.SrossrossV1alpha1Interface {
+	return &fakesrossrossv1alpha1.FakeSrossrossV1alpha1{Fake: &c.Fake}
 }
 
-// Pager retrieves the PagerV1alpha1Client
-func (c *Clientset) Pager() pagerv1alpha1.PagerV1alpha1Interface {
-	return &fakepagerv1alpha1.FakePagerV1alpha1{Fake: &c.Fake}
+// Srossross retrieves the SrossrossV1alpha1Client
+func (c *Clientset) Srossross() srossrossv1alpha1.SrossrossV1alpha1Interface {
+	return &fakesrossrossv1alpha1.FakeSrossrossV1alpha1{Fake: &c.Fake}
 }

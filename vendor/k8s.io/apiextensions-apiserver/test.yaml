@@ -1,0 +1,6 @@
+apiVersion: "srossross.com/v1"
+kind: Test
+metadata:
+  name: my-test-object
+spec:
+  hello: world

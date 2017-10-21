@@ -17,5 +17,5 @@ limitations under the License.
 package fake
 
 import (
-	internalversion "github.com/munnerz/k8s-api-pager-demo/pkg/client/internalclientset/typed/pager/internalversion"
+	internalversion "github.com/srossross/k8s-test-controller/pkg/client/internalclientset/typed/pager/internalversion"
 )
