@@ -20,8 +20,8 @@ import (
 	"k8s.io/apimachinery/pkg/apimachinery/registered"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager"
-	"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
+	"github.com/srossross/k8s-test-controller/pkg/apis/pager"
+	"github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
 )
 
 // Install registers the API group and adds types to a scheme
@@ -30,7 +30,7 @@ func Install(groupFactoryRegistry announced.APIGroupFactoryRegistry, registry *r
 		&announced.GroupMetaFactoryArgs{
 			GroupName:                  pager.GroupName,
 			VersionPreferenceOrder:     []string{v1alpha1.SchemeGroupVersion.Version},
-			ImportPrefix:               "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager",
+			ImportPrefix:               "github.com/srossross/k8s-test-controller/pkg/apis/pager",
 			AddInternalObjectsToScheme: pager.AddToScheme,
 		},
 		announced.VersionToSchemeFunc{

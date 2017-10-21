@@ -1,9 +1,18 @@
-PACKAGE_NAME := github.com/munnerz/k8s-api-pager-demo
+PACKAGE_NAME := github.com/srossross/k8s-test-controller
 
 # A temporary directory to store generator executors in
 BINDIR ?= bin
 GOPATH ?= $HOME/go
 HACK_DIR ?= hack
+
+GOOS := $(shell go env GOHOSTOS)
+GOARCH := $(shell go env GOHOSTARCH)
+CGO_ENABLED := 0
+LDFLAGS := -X github.com/srossross/k8s-test-controller/main.VERSION=$(shell echo $${CIRCLE_TAG:-?}) \
+  -X github.com/srossross/k8s-test-controller/main.BUILD_TIME=$(shell date -u +%Y-%m-%d)
+
+USERNAME := $(shell echo ${CIRCLE_PROJECT_USERNAME})
+REPONAME := $(shell echo ${CIRCLE_PROJECT_REPONAME})
 
 # A list of all types.go files in pkg/apis
 TYPES_FILES = $(shell find pkg/apis -name types.go)
@@ -52,11 +61,11 @@ $(BINDIR)/informer-gen:
 
 
 # This target runs all required generators against our API types.
-generate: .generate_exes $(TYPES_FILES)
+generate: .generate_exes $(TYPES_FILES) ## Generate files
 	# Generate defaults
 	$(BINDIR)/defaulter-gen \
 		--v 1 --logtostderr \
-		--go-header-file "$${GOPATH}/src/github.com/kubernetes/repo-infra/verify/boilerplate/boilerplate.go.txt" \
+		--go-header-file "$${GOPATH}/src/github.com/srossross/k8s-test-controller/hack/boilerplate.go.txt" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager/v1alpha1" \
 		--extra-peer-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
@@ -65,16 +74,59 @@ generate: .generate_exes $(TYPES_FILES)
 	# Generate deep copies
 	$(BINDIR)/deepcopy-gen \
 		--v 1 --logtostderr \
-		--go-header-file "$${GOPATH}/src/github.com/kubernetes/repo-infra/verify/boilerplate/boilerplate.go.txt" \
+		--go-header-file "$${GOPATH}/src/github.com/srossross/k8s-test-controller/hack/boilerplate.go.txt" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager/v1alpha1" \
 		--output-file-base zz_generated.deepcopy
 	# Generate conversions
 	$(BINDIR)/conversion-gen \
 		--v 1 --logtostderr \
-		--go-header-file "$${GOPATH}/src/github.com/kubernetes/repo-infra/verify/boilerplate/boilerplate.go.txt" \
+		--go-header-file "$${GOPATH}/src/github.com/srossross/k8s-test-controller/hack/boilerplate.go.txt" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager/v1alpha1" \
 		--output-file-base zz_generated.conversion
 	# generate all pkg/client contents
 	$(HACK_DIR)/update-client-gen.sh
+
+cacheBuilds: ## Make go build and go run faster
+	go list -f '{{.Deps}}' ./... | tr "[" " " | tr "]" " " |   xargs go list -f '{{if not .Standard}}{{.ImportPath}}{{end}}' |   xargs go install -a
+
+
+build: ## build for any arch
+	mkdir -p /tmp/commands
+
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "$(LDFLAGS)" -o ./k8s-test-controller-$(GOOS)-$(GOARCH) ./main.go
+	tar -zcvf /tmp/commands/k8s-test-controller-$(GOOS)-$(GOARCH).tgz ./k8s-test-controller-$(GOOS)-$(GOARCH)
+
+buildLinux: GOOS := linux
+buildLinux: GOARCH := amd64
+buildLinux: build
+
+dockerBuild: ## Build docker container
+	docker build -t srossross/k8s-test-controller:latest .
+
+release: ## Create github release
+	github-release release \
+		--user $(USERNAME) \
+		--repo $(REPONAME) \
+		--tag $(TAG) \
+		--name "Release $(TAG)" \
+		--description "TODO: Description"
+
+upload: ## Upload build artifacts to github
+
+	github-release upload \
+		--user $(USERNAME) \
+		--repo $(REPONAME) \
+		--tag $(TAG) \
+		--name "k8s-test-controller-linux-amd64." \
+		--file /tmp/commands/k8s-test-controller-linux-amd64.tgz
+
+
+
+.PHONY: help
+
+help: ## show this help and exit
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.DEFAULT_GOAL := help

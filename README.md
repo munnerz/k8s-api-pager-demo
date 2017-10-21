@@ -1,15 +1,11 @@
-# Kubernetes custom API types Pager demo
+# k8s-test-controller
 
-This repository contains a demo application showing how you can use the
-Kubernetes generator applications to automatically create supporting code for
-your own apiserver or controller component.
+Add test resources to test your Kubernetes cluster setup.
 
-It implements a very simple controller that will watch for 'Alert' resources,
-and fire Pushbullet alerts for any unsent alerts in the API.
+[Check out the docs](https://srossross.github.io/k8s-test-controller/)
+---
 
-You can see the automation for generating the required code in the
-[Makefile](Makefile), and in [hack/update-client-gen.sh](hack/update-client-gen.sh)
-script.
+# Development
 
 ## Generating code
 
@@ -37,27 +33,15 @@ $ go build
 
 ## Running
 
-To run this demo, you will need a [Pushbullet](https://www.pushbullet.com)
-account. You can sign up for free on their website. Once done, you will need to
-create yourself an API key before running the application as follows:
+Running the application is as follows:
 
 ```bash
-$ ./k8s-api-pager-demo -pushbullet-token 'token-goes-here'
+$ go run main.go -kubeconfig ~/.kube/config
 ```
 
-Optionally, you can set the `-apiserver` flag too. This particular demo will
-**not** automatically detect credentials for the API server if it is running
-within a cluster, once again for brevity.
-
-Once started, you will also need to create the CustomResourceDefinition in the
-target API server, as we have not implemented our own API server in this repo.
+Then we can go ahead and create a Tests and TestRuns!
 
 ```bash
-$ kubectl create -f docs/crd.yaml
-```
-
-Then we can go ahead and create an Alert!
-
-```bash
-$ kubectl create -f docs/test-alert.yaml
+$ kubectl create -f docs/tests.yaml
+$ kubectl create -f docs/test-run.yaml
 ```

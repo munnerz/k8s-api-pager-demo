@@ -1,23 +1,16 @@
 /*
-Copyright 2017 The Kubernetes Authors.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+MIT License
 
-    http://www.apache.org/licenses/LICENSE-2.0
+Copyright (c) 2017 Sean Ross-Ross
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+See License in the root of this repo.
+
 */
-
 package fake
 
 import (
-	pagerv1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
+	srossrossv1alpha1 "github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -48,6 +41,6 @@ func init() {
 // After this, RawExtensions in Kubernetes types will serialize kube-aggregator types
 // correctly.
 func AddToScheme(scheme *runtime.Scheme) {
-	pagerv1alpha1.AddToScheme(scheme)
+	srossrossv1alpha1.AddToScheme(scheme)
 
 }

@@ -1,0 +1,56 @@
+apiVersion: srossross.github.io/v1alpha1
+kind: Test
+metadata:
+  name: test-success
+  labels:
+    app: test
+spec:
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        command: [echo, hello]
+      restartPolicy: Never
+      backoffLimit: 4
+---
+apiVersion: srossross.github.io/v1alpha1
+kind: Test
+metadata:
+  name: test-fail
+  labels:
+    app: test
+spec:
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        command: [sh, -c, "exit 1"]
+      restartPolicy: Never
+      backoffLimit: 4
+---
+apiVersion: srossross.github.io/v1alpha1
+kind: Test
+metadata:
+  name: test-sleep
+  labels:
+    app: test
+spec:
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        command: [sh, -c, "sleep 20"]
+      restartPolicy: Never
+      backoffLimit: 4

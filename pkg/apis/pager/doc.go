@@ -12,7 +12,7 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package,register
-// +groupName=pager.k8s.co
+// +groupName=srossross.github.io
 
 // Package pager is the internal version of the API.
 package pager
