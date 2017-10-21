@@ -6,13 +6,12 @@ import (
 	"time"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	errors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	wait "k8s.io/apimachinery/pkg/util/wait"
 
 	v1alpha1 "github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
-	client "github.com/srossross/k8s-test-controller/pkg/client"
-	factory "github.com/srossross/k8s-test-controller/pkg/informers/externalversions"
+	controller "github.com/srossross/k8s-test-controller/pkg/controller"
 )
 
 var (
@@ -48,14 +47,14 @@ func getTestOwnerReference(testRun *v1alpha1.TestRun) metav1.OwnerReference {
 }
 
 // CreateTestPod creates a test pod from a test template
-func CreateTestPod(sharedFactory factory.SharedInformerFactory, cl client.Interface, testRun *v1alpha1.TestRun, test *v1alpha1.Test) error {
+func CreateTestPod(ctrl controller.Interface, testRun *v1alpha1.TestRun, test *v1alpha1.Test) error {
 
 	Namespace := testRun.Namespace
 	if len(Namespace) == 0 {
 		Namespace = "default"
 	}
 
-	err := CreateTestRunEventStart(cl, testRun, test)
+	err := CreateTestRunEventStart(ctrl, testRun, test)
 	if err != nil {
 		return err
 	}
@@ -83,10 +82,10 @@ func CreateTestPod(sharedFactory factory.SharedInformerFactory, cl client.Interf
 		Status: v1.PodStatus{},
 	}
 
-	createdPod, err := cl.CoreV1().Pods(Namespace).Create(pod)
+	createdPod, err := ctrl.CoreV1().Pods(Namespace).Create(pod)
 	if err != nil {
 		CreateTestRunEvent(
-			cl, testRun, test.Name, "PodCreationFailure",
+			ctrl, testRun, test.Name, "PodCreationFailure",
 			fmt.Sprintf("Could not create pod for test %s", test.Name),
 		)
 		log.Printf("Error Creating pod while starting test %v", err)
@@ -97,7 +96,7 @@ func CreateTestPod(sharedFactory factory.SharedInformerFactory, cl client.Interf
 
 	return wait.Poll(500*time.Millisecond, 60*time.Second, func() (bool, error) {
 
-		_, err := GetPodLister(sharedFactory).Pods(testRun.Namespace).Get(createdPod.Name)
+		_, err := ctrl.PodLister().Pods(testRun.Namespace).Get(createdPod.Name)
 
 		if err == nil {
 			return true, nil

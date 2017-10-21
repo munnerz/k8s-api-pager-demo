@@ -7,14 +7,14 @@ import (
 	"time"
 
 	v1alpha1 "github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
-	client "github.com/srossross/k8s-test-controller/pkg/client"
+	controller "github.com/srossross/k8s-test-controller/pkg/controller"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // CreateTestRunEvent creates an event
 func CreateTestRunEvent(
-	cl client.Interface,
+	ctrl controller.Interface,
 	testRun *v1alpha1.TestRun,
 	testName string,
 	Reason string,
@@ -67,7 +67,7 @@ func CreateTestRunEvent(
 		Type:           "Normal",
 	}
 
-	_, err = cl.CoreV1().Events(Namespace).Create(&event)
+	_, err = ctrl.CoreV1().Events(Namespace).Create(&event)
 
 	if err != nil {
 		log.Printf("Error Creating event while starting test %v", err)
@@ -79,9 +79,9 @@ func CreateTestRunEvent(
 }
 
 // CreateTestRunEventStart will create a k8s event when a test pod is created
-func CreateTestRunEventStart(cl client.Interface, testRun *v1alpha1.TestRun, test *v1alpha1.Test) error {
+func CreateTestRunEventStart(ctrl controller.Interface, testRun *v1alpha1.TestRun, test *v1alpha1.Test) error {
 	return CreateTestRunEvent(
-		cl, testRun, test.Name,
+		ctrl, testRun, test.Name,
 		"TestStart",
 		fmt.Sprintf("Starting test %s", test.Name),
 	)

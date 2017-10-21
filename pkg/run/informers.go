@@ -128,10 +128,8 @@ func NewTestInformer(sharedFactory factory.SharedInformerFactory, queue workqueu
 	return testInformer
 }
 
-// NewPodInformer  creates a new test Informer that watches and caches pods
-func NewPodInformer(sharedFactory factory.SharedInformerFactory, queue workqueue.RateLimitingInterface) cache.SharedIndexInformer {
-
-	podInformer := GetPodInformer(sharedFactory)
+// SetupPodInformer  creates a new test Informer that watches and caches pods
+func SetupPodInformer(podInformer cache.SharedIndexInformer, queue workqueue.RateLimitingInterface) cache.SharedIndexInformer {
 
 	enqueue := func(cur interface{}) {
 		key, ok := podTestRunKey(cur)

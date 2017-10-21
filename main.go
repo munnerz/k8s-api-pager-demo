@@ -7,19 +7,21 @@ import (
 	"strings"
 	"time"
 
+	corev1 "k8s.io/api/core/v1"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	errors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/workqueue"
+	runtime "k8s.io/apimachinery/pkg/util/runtime"
+	typedv1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	rest "k8s.io/client-go/rest"
+	cache "k8s.io/client-go/tools/cache"
+	clientcmd "k8s.io/client-go/tools/clientcmd"
+	workqueue "k8s.io/client-go/util/workqueue"
 
-	"github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
-	"github.com/srossross/k8s-test-controller/pkg/client"
+	v1alpha1 "github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
+	client "github.com/srossross/k8s-test-controller/pkg/client"
+	controller "github.com/srossross/k8s-test-controller/pkg/controller"
 	factory "github.com/srossross/k8s-test-controller/pkg/informers/externalversions"
-	"github.com/srossross/k8s-test-controller/pkg/run"
-	corev1 "k8s.io/api/core/v1"
+	run "github.com/srossross/k8s-test-controller/pkg/run"
 )
 
 var (
@@ -52,8 +54,11 @@ var (
 	// date results with less 'effort'
 	sharedFactory factory.SharedInformerFactory
 
+	ctrl controller.Interface
+
 	// cl is a Kubernetes API client for our custom resource definition type
-	cl client.Interface
+	cl           *client.Clientset
+	coreV1Client *typedv1.CoreV1Client
 
 	// pb is the pushbullet client to use to send alerts
 	// pb *pushbullet.Pushbullet
@@ -92,6 +97,14 @@ func main() {
 		log.Fatalf("error creating api client: %s", err.Error())
 	}
 
+	coreV1Client, err = typedv1.NewForConfig(config)
+
+	if err != nil {
+		log.Fatalf("error creating api client: %s", err.Error())
+	}
+
+	ctrl = controller.NewTestController(&sharedFactory, cl, coreV1Client)
+
 	log.Printf("Created Kubernetes client.")
 
 	// we use a shared informer from the informer factory, to save calls to the
@@ -104,7 +117,7 @@ func main() {
 
 	testInformer := run.NewTestInformer(sharedFactory, queue)
 
-	podInformer := run.NewPodInformer(sharedFactory, queue)
+	podInformer := run.SetupPodInformer(ctrl.PodInformer(), queue)
 
 	// start the informer. This will cause it to begin receiving updates from
 	// the configured API server and firing event handlers in response.
@@ -174,19 +187,19 @@ func work() {
 			switch runType {
 			case run.ReconsilePodStatus:
 				{
-					testRun, pod, err = run.GetPodAndTestRunFromKey(sharedFactory, key)
+					testRun, pod, err = ctrl.GetPodAndTestRunFromKey(key)
 					if err == nil {
-						err = run.PodStateChange(sharedFactory, cl, testRun, pod)
+						err = run.PodStateChange(ctrl, testRun, pod)
 					}
 				}
 			case run.ReconsileTestRun:
 				{
-					testRun, err = run.GetTestRunFromKey(sharedFactory, key)
+					testRun, err = ctrl.GetTestRunFromKey(key)
 					if err == nil {
-						err = run.TestRunner(sharedFactory, cl, testRun)
+						err = run.TestRunner(ctrl, testRun)
 					} else if errors.IsNotFound(err) {
 						// FIXME: should this be handled by k8s garbage collection?
-						err = run.TestRunnerRemovePodsForDeletedTest(sharedFactory, cl, key)
+						err = ctrl.TestRunnerRemovePodsForDeletedTest(key)
 					}
 				}
 			default:

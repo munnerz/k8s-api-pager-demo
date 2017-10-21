@@ -15,13 +15,11 @@ import (
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
-	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	SrossrossV1alpha1() srossrossv1alpha1.SrossrossV1alpha1Interface
-	CoreV1() corev1.CoreV1Interface
 	// Deprecated: please explicitly pick a version if possible.
 	Srossross() srossrossv1alpha1.SrossrossV1alpha1Interface
 }
@@ -31,7 +29,6 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	*srossrossv1alpha1.SrossrossV1alpha1Client
-	*corev1.CoreV1Client
 }
 
 // SrossrossV1alpha1 retrieves the SrossrossV1alpha1Client
@@ -59,14 +56,6 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 	return c.DiscoveryClient
 }
 
-// CoreV1 retrieves the CoreV1Client
-func (c *Clientset) CoreV1() corev1.CoreV1Interface {
-	if c == nil {
-		return nil
-	}
-	return c.CoreV1Client
-}
-
 // NewForConfig creates a new Clientset for the given config.
 func NewForConfig(c *rest.Config) (*Clientset, error) {
 	configShallowCopy := *c
@@ -85,13 +74,6 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 		glog.Errorf("failed to create the DiscoveryClient: %v", err)
 		return nil, err
 	}
-
-	cs.CoreV1Client, err = corev1.NewForConfig(&configShallowCopy)
-	if err != nil {
-		glog.Errorf("failed to create the CoreV1Client: %v", err)
-		return nil, err
-	}
-
 	return &cs, nil
 }
 

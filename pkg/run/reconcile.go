@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"log"
 
-	client "github.com/srossross/k8s-test-controller/pkg/client"
-	factory "github.com/srossross/k8s-test-controller/pkg/informers/externalversions"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	runtime "k8s.io/apimachinery/pkg/util/runtime"
 
 	v1alpha1 "github.com/srossross/k8s-test-controller/pkg/apis/pager/v1alpha1"
+	controller "github.com/srossross/k8s-test-controller/pkg/controller"
 )
 
 // TestRunner will Reconcile a single test run
-func TestRunner(sharedFactory factory.SharedInformerFactory, cl client.Interface, testRun *v1alpha1.TestRun) error {
+func TestRunner(ctrl controller.Interface, testRun *v1alpha1.TestRun) error {
 	if testRun.Status.Status == v1alpha1.TestRunComplete {
 		log.Printf("  | '%v/%v' is already Complete - Skipping", testRun.Namespace, testRun.Name)
 		return nil
@@ -32,7 +31,7 @@ func TestRunner(sharedFactory factory.SharedInformerFactory, cl client.Interface
 		return fmt.Errorf("error getting test selector: %s", err.Error())
 	}
 
-	tests, err := sharedFactory.Srossross().V1alpha1().Tests().Lister().Tests(testRun.Namespace).List(selector)
+	tests, err := ctrl.TestLister().Tests(testRun.Namespace).List(selector)
 
 	if err != nil {
 		return fmt.Errorf("error getting list of tests: %s", err.Error())
@@ -40,12 +39,13 @@ func TestRunner(sharedFactory factory.SharedInformerFactory, cl client.Interface
 
 	log.Printf("  | Test Count: %v", len(tests))
 
-	pods, err := GetPodLister(sharedFactory).Pods(testRun.Namespace).List(labels.Everything())
+	pods, err := ctrl.PodLister().Pods(testRun.Namespace).List(labels.Everything())
+
 	if err != nil {
 		return fmt.Errorf("Error getting list of pods: %s", err.Error())
 	}
 
-	pods = testRunFilter(pods, testRun.Name)
+	pods = controller.TestRunFilter(pods, testRun.Name)
 
 	log.Printf("  | Total Pod Count: %v", len(pods))
 
@@ -96,7 +96,7 @@ func TestRunner(sharedFactory factory.SharedInformerFactory, cl client.Interface
 				continue
 			}
 		} else {
-			err = CreateTestPod(sharedFactory, cl, testRun, test)
+			err = CreateTestPod(ctrl, testRun, test)
 
 			if err != nil {
 				return err
@@ -115,7 +115,7 @@ func TestRunner(sharedFactory factory.SharedInformerFactory, cl client.Interface
 		testRun.Status.Message = Message
 
 		log.Printf("Saving '%v/%v'", testRun.Namespace, testRun.Name)
-		if _, err := cl.SrossrossV1alpha1().TestRuns(testRun.Namespace).Update(testRun); err != nil {
+		if _, err := ctrl.SrossrossV1alpha1().TestRuns(testRun.Namespace).Update(testRun); err != nil {
 			return err
 		}
 		log.Printf("We are done here %v tests completed", completedCount)
@@ -126,7 +126,7 @@ func TestRunner(sharedFactory factory.SharedInformerFactory, cl client.Interface
 		case false:
 			Reason = "TestRunFail"
 		}
-		return CreateTestRunEvent(cl, testRun, "", Reason, Message)
+		return CreateTestRunEvent(ctrl, testRun, "", Reason, Message)
 
 	}
 	log.Printf("Completed %v of %v tests", completedCount, len(tests))
@@ -135,9 +135,9 @@ func TestRunner(sharedFactory factory.SharedInformerFactory, cl client.Interface
 }
 
 // Reconcile all testruns
-func Reconcile(sharedFactory factory.SharedInformerFactory, cl client.Interface) {
+func Reconcile(ctrl controller.Interface) {
 
-	lister := sharedFactory.Srossross().V1alpha1().TestRuns().Lister()
+	lister := ctrl.TestRunLister()
 	runs, err := lister.TestRuns(metav1.NamespaceAll).List(labels.Everything())
 
 	if err != nil {
@@ -147,7 +147,7 @@ func Reconcile(sharedFactory factory.SharedInformerFactory, cl client.Interface)
 
 	for _, testRun := range runs {
 
-		err := TestRunner(sharedFactory, cl, testRun)
+		err := TestRunner(ctrl, testRun)
 
 		if err != nil {
 			testRun.Status.Status = v1alpha1.TestRunComplete
@@ -155,7 +155,7 @@ func Reconcile(sharedFactory factory.SharedInformerFactory, cl client.Interface)
 			testRun.Status.Message = fmt.Sprintf("Critical error during test run (%v)", err.Error())
 
 			log.Printf("Saving Error state for '%v/%v'", testRun.Namespace, testRun.Name)
-			if _, err := cl.SrossrossV1alpha1().TestRuns(testRun.Namespace).Update(testRun); err != nil {
+			if _, err := ctrl.SrossrossV1alpha1().TestRuns(testRun.Namespace).Update(testRun); err != nil {
 				runtime.HandleError(fmt.Errorf("Error saving update to testrun (This could cause an infinite Reconcile loop): %s", err.Error()))
 
 			}
