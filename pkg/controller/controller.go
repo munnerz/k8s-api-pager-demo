@@ -17,15 +17,14 @@ import (
 type Interface interface {
 	TestLister() listerV1alpha1.TestLister
 	TestRunLister() listerV1alpha1.TestRunLister
-	PodLister() listerv1.PodLister
+	SrossrossV1alpha1() srossrossv1alpha1.SrossrossV1alpha1Interface
 
+	PodLister() listerv1.PodLister
 	PodInformer() cache.SharedIndexInformer
 	CoreV1() typedv1.CoreV1Interface
-	SrossrossV1alpha1() srossrossv1alpha1.SrossrossV1alpha1Interface
 
 	GetTestRunFromKey(key string) (*v1alpha1.TestRun, error)
 	GetPodAndTestRunFromKey(key string) (*v1alpha1.TestRun, *corev1.Pod, error)
-
 	TestRunnerRemovePodsForDeletedTest(key string) error
 }
 

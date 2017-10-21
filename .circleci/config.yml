@@ -13,11 +13,13 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run:
-          name: Go Get
+          name: Dep Ensure
           command: |
-            # go get -v -t -d ./... github.com/golang/lint/golint
-            go get -v -t -d github.com/imdario/mergo golang.org/x/crypto/ssh
-      # - run: go test -v ./...
+            go get -u github.com/golang/dep/cmd/dep
+            dep ensure
+      - run:
+          name: Go Test
+          command: go test -v ./pkg/controller/...
       - run: mkdir -p /tmp/commands
       # - run: $GOPATH/bin/golint ./...
       - run:
