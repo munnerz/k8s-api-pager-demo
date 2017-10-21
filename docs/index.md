@@ -51,8 +51,8 @@ spec:
       restartPolicy: Never
 ```
 
-It will contain `Pod` definition inthe  `spec.template` field. The `Test` will
-will instantiate this pod when a new  testrun is created.
+It will contain a `Pod` definition in the  `spec.template` field. The `Test` will
+will instantiate this pod when a new  `TestRun` is created.
 
 To add this test to your cluster, first create the file `./test-success.yaml` then run:
 
@@ -66,8 +66,9 @@ a `TestRun`.
 
 ### Kind: TestRun
 
-A creating a `TestRun` will instantiate all `Tests` that matched
-by its optional `selector`. If omitted, all tests in the namespace will be run.
+Creating a `TestRun` will instantiate all `Tests` that are matched by its
+optional `selector`.
+If the selector is omitted, all tests in the namespace will be run.
 
 ```yaml
 # File: test-run.yaml
@@ -94,13 +95,13 @@ The controller will now start running your tests.
 ## Inspecting a TestRun
 
 A TestRun will emit Kubernetes events. You can inspect these events by either running
-`kubectl describe`. eg:
+`kubectl describe`:
 
 ```
 kubectl describe testrun test-run-1
 ```
 
-Or inspecting the events  eg:
+Or inspecting the events directly:
 
 ```
 kubectl get events -l test-run=test-run-1 --watch
@@ -111,7 +112,7 @@ kubectl get events -l test-run=test-run-1 --watch
 
 For now you can use our bash script. This script will create and watch a TestRun and wait until it is finished:
 
-```
+```sh
 curl --fail https://srossross.github.io/k8s-test-controller/runner.sh > ./runner.sh
 bash ./runner.sh test-run-2
 ```
