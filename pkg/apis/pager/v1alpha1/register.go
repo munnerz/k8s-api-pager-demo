@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-		"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager"
+	"github.com/srossross/k8s-test-controller/pkg/apis/pager"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -47,8 +47,10 @@ func init() {
 // Adds the list of known types to api.Scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&Alert{},
-		&AlertList{},
+		&TestRun{},
+		&TestRunList{},
+		&Test{},
+		&TestList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

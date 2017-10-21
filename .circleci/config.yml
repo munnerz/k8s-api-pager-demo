@@ -1,0 +1,75 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.8
+    working_directory: /go/src/github.com/srossross/k8s-test-controller
+    steps:
+      - checkout
+
+      # specify any bash command here prefixed with `run: `
+      - run:
+          name: Dep Ensure
+          command: |
+            go get -u github.com/golang/dep/cmd/dep
+            dep ensure
+      - run:
+          name: Go Test
+          command: go test -v ./pkg/controller/...
+      - run: mkdir -p /tmp/commands
+      # - run: $GOPATH/bin/golint ./...
+      - run:
+          name: Build Executables
+          command: |
+            make build GOOS=linux GOARCH=amd64
+      - store_artifacts:
+          path: /tmp/commands
+      - persist_to_workspace:
+          root: /tmp/commands
+          paths:
+            - k8s-test-controller-linux-amd64.tgz
+  deploy:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.8
+    working_directory: /go/src/github.com/srossross/k8s-test-controller
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: /tmp/commands
+
+      - run:
+          name: Create Github Release
+          command: |
+            go get github.com/aktau/github-release
+
+            echo Uploading to Release ${CIRCLE_TAG}
+            echo Uploading to ${CIRCLE_PROJECT_USERNAME} ${CIRCLE_PROJECT_REPONAME}
+
+            make release TAG=${CIRCLE_TAG}
+            make upload TAG=${CIRCLE_TAG}
+
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v.*/

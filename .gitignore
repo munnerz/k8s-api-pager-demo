@@ -1,4 +1,5 @@
 bin/
 .get_deps
 .generate_exes
-k8s-api-pager-demo
+k8s-test-controller
+k8s-test-controller-*
