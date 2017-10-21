@@ -53,7 +53,7 @@ func TestClientGoCustomResourceExample(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	t.Logf("Starting a controller on instances of custom resource %q", examplecrv1.E2ETestResourcePlural)
+	t.Logf("Starting a controller on instances of custom resource %q", examplecrv1.ExampleResourcePlural)
 	controller := examplecontroller.ExampleController{
 		ExampleClient: exampleClient,
 		ExampleScheme: exampleScheme,
@@ -69,18 +69,18 @@ func TestClientGoCustomResourceExample(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "example1",
 		},
-		Spec: examplecrv1.E2ETestSpec{
+		Spec: examplecrv1.ExampleSpec{
 			Foo: "hello",
 			Bar: true,
 		},
-		Status: examplecrv1.E2ETestStatus{
-			State:   examplecrv1.E2ETestStateCreated,
+		Status: examplecrv1.ExampleStatus{
+			State:   examplecrv1.ExampleStateCreated,
 			Message: "Created, not processed yet",
 		},
 	}
 	var result examplecrv1.Example
 	err = exampleClient.Post().
-		Resource(examplecrv1.E2ETestResourcePlural).
+		Resource(examplecrv1.ExampleResourcePlural).
 		Namespace(apiv1.NamespaceDefault).
 		Body(example).
 		Do().Into(&result)

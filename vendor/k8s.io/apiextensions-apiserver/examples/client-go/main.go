@@ -23,7 +23,6 @@ import (
 	"fmt"
 
 	apiv1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
 	apiextensionsclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -48,33 +47,20 @@ func main() {
 		panic(err)
 	}
 
-
 	apiextensionsclientset, err := apiextensionsclient.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
 
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-
 	// initialize custom resource using a CustomResourceDefinition if it does not exist
-	// crd, err := exampleclient.CreateCustomResourceDefinition(apiextensionsclientset)
-	// if err != nil && !apierrors.IsAlreadyExists(err) {
-	// 	panic(err)
-	// }
-	//
-	// if crd != nil {
-	// 	defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(crd.Name, nil)
-	// }
-	crdName := crv1.E2ETestResourcePlural + "." + crv1.GroupName
-	crd, err := apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Get(crdName, metav1.GetOptions{})
-	if err != nil {
+	crd, err := exampleclient.CreateCustomResourceDefinition(apiextensionsclientset)
+	if err != nil && !apierrors.IsAlreadyExists(err) {
 		panic(err)
 	}
 
-	fmt.Printf("CRD %v", crd)
+	if crd != nil {
+		defer apiextensionsclientset.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(crd.Name, nil)
+	}
 
 	// make a new config for our extension's API group, using the first config as a baseline
 	exampleClient, exampleScheme, err := exampleclient.NewClient(config)
@@ -82,15 +68,10 @@ func main() {
 		panic(err)
 	}
 
-	stopCh := make(chan struct{})
-	defer close(stopCh)
-
-	crv1.NewE2ETestController(client, *exampleClient).Run(stopCh)
-
 	// start a controller on instances of our custom resource
-	controller := examplecontroller.E2ETestController{
-		E2ETestClient: exampleClient,
-		E2ETestScheme: exampleScheme,
+	controller := examplecontroller.ExampleController{
+		ExampleClient: exampleClient,
+		ExampleScheme: exampleScheme,
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -98,24 +79,22 @@ func main() {
 	go controller.Run(ctx)
 
 	// Create an instance of our custom resource
-	example := &crv1.E2ETest{
+	example := &crv1.Example{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "test1",
-			// Namespace: "default",
+			Name: "example1",
 		},
-		Spec: crv1.E2ETestSpec{
+		Spec: crv1.ExampleSpec{
 			Foo: "hello",
 			Bar: true,
 		},
-		Status: crv1.E2ETestStatus{
-			State:   crv1.E2ETestStateCreated,
+		Status: crv1.ExampleStatus{
+			State:   crv1.ExampleStateCreated,
 			Message: "Created, not processed yet",
 		},
 	}
-	var result crv1.E2ETest
-	fmt.Printf("WANT: %#v\n", example)
+	var result crv1.Example
 	err = exampleClient.Post().
-		Resource(crv1.E2ETestResourcePlural).
+		Resource(crv1.ExampleResourcePlural).
 		Namespace(apiv1.NamespaceDefault).
 		Body(example).
 		Do().Into(&result)
@@ -127,16 +106,16 @@ func main() {
 		panic(err)
 	}
 
-	// Poll until E2ETest object is handled by controller and gets status updated to "Processed"
-	err = exampleclient.WaitForE2ETestInstanceProcessed(exampleClient, "test1")
+	// Poll until Example object is handled by controller and gets status updated to "Processed"
+	err = exampleclient.WaitForExampleInstanceProcessed(exampleClient, "example1")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Print("PROCESSED\n")
 
 	// Fetch a list of our CRs
-	exampleList := crv1.E2ETestList{}
-	err = exampleClient.Get().Resource(crv1.E2ETestResourcePlural).Do().Into(&exampleList)
+	exampleList := crv1.ExampleList{}
+	err = exampleClient.Get().Resource(crv1.ExampleResourcePlural).Do().Into(&exampleList)
 	if err != nil {
 		panic(err)
 	}

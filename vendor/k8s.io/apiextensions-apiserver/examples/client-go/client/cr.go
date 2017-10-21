@@ -33,7 +33,7 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
-const exampleCRDName = crv1.E2ETestResourcePlural + "." + crv1.GroupName
+const exampleCRDName = crv1.ExampleResourcePlural + "." + crv1.GroupName
 
 func CreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*apiextensionsv1beta1.CustomResourceDefinition, error) {
 	crd := &apiextensionsv1beta1.CustomResourceDefinition{
@@ -43,10 +43,10 @@ func CreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*a
 		Spec: apiextensionsv1beta1.CustomResourceDefinitionSpec{
 			Group:   crv1.GroupName,
 			Version: crv1.SchemeGroupVersion.Version,
-			Scope:   apiextensionsv1beta1.ClusterScoped,
+			Scope:   apiextensionsv1beta1.NamespaceScoped,
 			Names: apiextensionsv1beta1.CustomResourceDefinitionNames{
-				Plural: crv1.E2ETestResourcePlural,
-				Kind:   reflect.TypeOf(crv1.E2ETest{}).Name(),
+				Plural: crv1.ExampleResourcePlural,
+				Kind:   reflect.TypeOf(crv1.Example{}).Name(),
 			},
 		},
 	}
@@ -85,16 +85,16 @@ func CreateCustomResourceDefinition(clientset apiextensionsclient.Interface) (*a
 	return crd, nil
 }
 
-func WaitForE2ETestInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
+func WaitForExampleInstanceProcessed(exampleClient *rest.RESTClient, name string) error {
 	return wait.Poll(100*time.Millisecond, 10*time.Second, func() (bool, error) {
-		var example crv1.E2ETest
+		var example crv1.Example
 		err := exampleClient.Get().
-			Resource(crv1.E2ETestResourcePlural).
+			Resource(crv1.ExampleResourcePlural).
 			Namespace(apiv1.NamespaceDefault).
 			Name(name).
 			Do().Into(&example)
 
-		if err == nil && example.Status.State == crv1.E2ETestStateProcessed {
+		if err == nil && example.Status.State == crv1.ExampleStateProcessed {
 			return true, nil
 		}
 

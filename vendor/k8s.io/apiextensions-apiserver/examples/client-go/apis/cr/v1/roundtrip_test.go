@@ -31,17 +31,17 @@ import (
 	runtimeserializer "k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
-var _ runtime.Object = &E2ETest{}
-var _ metav1.ObjectMetaAccessor = &E2ETest{}
+var _ runtime.Object = &Example{}
+var _ metav1.ObjectMetaAccessor = &Example{}
 
-var _ runtime.Object = &E2ETestList{}
-var _ metav1.ListMetaAccessor = &E2ETestList{}
+var _ runtime.Object = &ExampleList{}
+var _ metav1.ListMetaAccessor = &ExampleList{}
 
 func exampleFuzzerFuncs(codecs runtimeserializer.CodecFactory) []interface{} {
 	return []interface{}{
-		func(obj *E2ETestList, c fuzz.Continue) {
+		func(obj *ExampleList, c fuzz.Continue) {
 			c.FuzzNoCustom(obj)
-			obj.Items = make([]E2ETest, c.Intn(10))
+			obj.Items = make([]Example, c.Intn(10))
 			for i := range obj.Items {
 				c.Fuzz(&obj.Items[i])
 			}
@@ -61,6 +61,6 @@ func TestRoundTrip(t *testing.T) {
 	fuzzerFuncs := fuzzer.MergeFuzzerFuncs(metafuzzer.Funcs, exampleFuzzerFuncs)
 	fuzzer := fuzzer.FuzzerFor(fuzzerFuncs, rand.NewSource(seed), codecs)
 
-	roundtrip.RoundTripSpecificKindWithoutProtobuf(t, SchemeGroupVersion.WithKind("E2ETest"), scheme, codecs, fuzzer, nil)
-	roundtrip.RoundTripSpecificKindWithoutProtobuf(t, SchemeGroupVersion.WithKind("E2ETestList"), scheme, codecs, fuzzer, nil)
+	roundtrip.RoundTripSpecificKindWithoutProtobuf(t, SchemeGroupVersion.WithKind("Example"), scheme, codecs, fuzzer, nil)
+	roundtrip.RoundTripSpecificKindWithoutProtobuf(t, SchemeGroupVersion.WithKind("ExampleList"), scheme, codecs, fuzzer, nil)
 }

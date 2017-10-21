@@ -65,7 +65,7 @@ generate: .generate_exes $(TYPES_FILES) ## Generate files
 	# Generate defaults
 	$(BINDIR)/defaulter-gen \
 		--v 1 --logtostderr \
-		--go-header-file "$${GOPATH}/src/github.com/kubernetes/repo-infra/verify/boilerplate/boilerplate.go.txt" \
+		--go-header-file "$${GOPATH}/src/github.com/srossross/k8s-test-controller/hack/boilerplate.go.txt" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager/v1alpha1" \
 		--extra-peer-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
@@ -74,14 +74,14 @@ generate: .generate_exes $(TYPES_FILES) ## Generate files
 	# Generate deep copies
 	$(BINDIR)/deepcopy-gen \
 		--v 1 --logtostderr \
-		--go-header-file "$${GOPATH}/src/github.com/kubernetes/repo-infra/verify/boilerplate/boilerplate.go.txt" \
+		--go-header-file "$${GOPATH}/src/github.com/srossross/k8s-test-controller/hack/boilerplate.go.txt" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager/v1alpha1" \
 		--output-file-base zz_generated.deepcopy
 	# Generate conversions
 	$(BINDIR)/conversion-gen \
 		--v 1 --logtostderr \
-		--go-header-file "$${GOPATH}/src/github.com/kubernetes/repo-infra/verify/boilerplate/boilerplate.go.txt" \
+		--go-header-file "$${GOPATH}/src/github.com/srossross/k8s-test-controller/hack/boilerplate.go.txt" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager" \
 		--input-dirs "$(PACKAGE_NAME)/pkg/apis/pager/v1alpha1" \
 		--output-file-base zz_generated.conversion

@@ -17,7 +17,6 @@ limitations under the License.
 package client
 
 import (
-	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	"k8s.io/client-go/rest"
@@ -26,7 +25,6 @@ import (
 )
 
 func NewClient(cfg *rest.Config) (*rest.RESTClient, *runtime.Scheme, error) {
-	fmt.Println("NewClient+AddToScheme")
 	scheme := runtime.NewScheme()
 	if err := crv1.AddToScheme(scheme); err != nil {
 		return nil, nil, err

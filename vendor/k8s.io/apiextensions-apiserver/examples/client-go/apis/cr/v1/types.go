@@ -18,42 +18,38 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	corev1 "k8s.io/api/core/v1"
 )
 
-const E2ETestResourcePlural = "tests"
+const ExampleResourcePlural = "examples"
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-type E2ETest struct {
+type Example struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
-	Spec              E2ETestSpec   `json:"spec"`
-	Status            E2ETestStatus `json:"status,omitempty"`
+	Spec              ExampleSpec   `json:"spec"`
+	Status            ExampleStatus `json:"status,omitempty"`
 }
 
-type E2ETestSpec struct {
+type ExampleSpec struct {
 	Foo string `json:"foo"`
 	Bar bool   `json:"bar"`
-	Template corev1.PodTemplateSpec `json:"template" protobuf:"bytes,3,opt,name=template"`
 }
 
-
-
-type E2ETestStatus struct {
-	State   E2ETestState `json:"state,omitempty"`
+type ExampleStatus struct {
+	State   ExampleState `json:"state,omitempty"`
 	Message string       `json:"message,omitempty"`
 }
 
-type E2ETestState string
+type ExampleState string
 
 const (
-	E2ETestStateCreated   E2ETestState = "Created"
-	E2ETestStateProcessed E2ETestState = "Processed"
+	ExampleStateCreated   ExampleState = "Created"
+	ExampleStateProcessed ExampleState = "Processed"
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-type E2ETestList struct {
+type ExampleList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata"`
-	Items           []E2ETest `json:"items"`
+	Items           []Example `json:"items"`
 }
