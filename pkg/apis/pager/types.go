@@ -18,7 +18,7 @@ type Alert struct {
 
 type AlertList struct {
 	metav1.TypeMeta
-	metav1.ObjectMeta
+	metav1.ListMeta
 
 	Items []Alert
 }
