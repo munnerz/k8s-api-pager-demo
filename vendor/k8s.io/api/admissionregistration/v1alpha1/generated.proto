@@ -38,6 +38,9 @@ message AdmissionHookClientConfig {
   // Required
   optional ServiceReference service = 1;
 
+  // URLPath is an optional field that specifies the URL path to use when posting the AdmissionReview object.
+  optional string urlPath = 3;
+
   // CABundle is a PEM encoded CA bundle which will be used to validate webhook's server certificate.
   // Required
   optional bytes caBundle = 2;
@@ -107,13 +110,6 @@ message Initializer {
   // The initializer cares about an operation if it matches _any_ Rule.
   // Rule.Resources must not include subresources.
   repeated Rule rules = 2;
-
-  // FailurePolicy defines what happens if the responsible initializer controller
-  // fails to takes action. Allowed values are Ignore, or Fail. If "Ignore" is
-  // set, initializer is removed from the initializers list of an object if
-  // the timeout is reached; If "Fail" is set, admissionregistration returns timeout error
-  // if the timeout is reached.
-  optional string failurePolicy = 3;
 }
 
 // InitializerConfiguration describes the configuration of initializers.

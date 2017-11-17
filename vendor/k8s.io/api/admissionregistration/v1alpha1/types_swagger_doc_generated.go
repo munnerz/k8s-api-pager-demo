@@ -30,6 +30,7 @@ package v1alpha1
 var map_AdmissionHookClientConfig = map[string]string{
 	"":         "AdmissionHookClientConfig contains the information to make a TLS connection with the webhook",
 	"service":  "Service is a reference to the service for this webhook. If there is only one port open for the service, that port will be used. If there are multiple ports open, port 443 will be used if it is open, otherwise it is an error. Required",
+	"urlPath":  "URLPath is an optional field that specifies the URL path to use when posting the AdmissionReview object.",
 	"caBundle": "CABundle is a PEM encoded CA bundle which will be used to validate webhook's server certificate. Required",
 }
 
@@ -70,10 +71,9 @@ func (ExternalAdmissionHookConfigurationList) SwaggerDoc() map[string]string {
 }
 
 var map_Initializer = map[string]string{
-	"":              "Initializer describes the name and the failure policy of an initializer, and what resources it applies to.",
-	"name":          "Name is the identifier of the initializer. It will be added to the object that needs to be initialized. Name should be fully qualified, e.g., alwayspullimages.kubernetes.io, where \"alwayspullimages\" is the name of the webhook, and kubernetes.io is the name of the organization. Required",
-	"rules":         "Rules describes what resources/subresources the initializer cares about. The initializer cares about an operation if it matches _any_ Rule. Rule.Resources must not include subresources.",
-	"failurePolicy": "FailurePolicy defines what happens if the responsible initializer controller fails to takes action. Allowed values are Ignore, or Fail. If \"Ignore\" is set, initializer is removed from the initializers list of an object if the timeout is reached; If \"Fail\" is set, admissionregistration returns timeout error if the timeout is reached.",
+	"":      "Initializer describes the name and the failure policy of an initializer, and what resources it applies to.",
+	"name":  "Name is the identifier of the initializer. It will be added to the object that needs to be initialized. Name should be fully qualified, e.g., alwayspullimages.kubernetes.io, where \"alwayspullimages\" is the name of the webhook, and kubernetes.io is the name of the organization. Required",
+	"rules": "Rules describes what resources/subresources the initializer cares about. The initializer cares about an operation if it matches _any_ Rule. Rule.Resources must not include subresources.",
 }
 
 func (Initializer) SwaggerDoc() map[string]string {
