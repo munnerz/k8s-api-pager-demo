@@ -15,8 +15,8 @@ import (
 	"k8s.io/client-go/util/workqueue"
 
 	"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
-	"github.com/munnerz/k8s-api-pager-demo/pkg/client"
-	factory "github.com/munnerz/k8s-api-pager-demo/pkg/informers/externalversions"
+	client "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned"
+	factory "github.com/munnerz/k8s-api-pager-demo/pkg/client/informers/externalversions"
 )
 
 var (

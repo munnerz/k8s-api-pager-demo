@@ -1,25 +1,22 @@
+# We 'require' the code-generators listed here so that dep vendors them for us.
+# Whilst we don't directly depend on any code in k8s.io/code-generator, the
+# repository is required in order to use ./hack/update-codegen.sh.
+required = [
+  "k8s.io/code-generator/cmd/client-gen",
+  "k8s.io/code-generator/cmd/conversion-gen",
+  "k8s.io/code-generator/cmd/deepcopy-gen",
+  "k8s.io/code-generator/cmd/defaulter-gen",
+  "k8s.io/code-generator/cmd/informer-gen",
+  "k8s.io/code-generator/cmd/lister-gen",
+]
 
-# Gopkg.toml example
-#
-# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
-# for detailed Gopkg.toml documentation.
-#
-# required = ["github.com/user/thing/cmd/thing"]
-# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
-#
-# [[constraint]]
-#   name = "github.com/user/project"
-#   version = "1.0.0"
-#
-# [[constraint]]
-#   name = "github.com/user/project2"
-#   branch = "dev"
-#   source = "github.com/myfork/project2"
-#
-# [[override]]
-#  name = "github.com/x/y"
-#  version = "2.4.0"
 
+# gengo needs to be manually pinned to the version listed in code-generators
+# Gopkg.toml, because the k8s project does not produce Gopkg.toml files & dep
+# does not parse the Godeps.json file to determine revisions to use.
+[[override]]
+  name = "k8s.io/gengo"
+  revision = "9e661e9308f078838e266cca1c673922088c0ea4"
 
 [[constraint]]
   branch = "master"
@@ -29,10 +26,23 @@
   name = "github.com/mitsuse/pushbullet-go"
   version = "0.1.0"
 
+# Kubernetes dependency pinning
 [[constraint]]
-  branch = "master"
+  branch = "release-1.8"
   name = "k8s.io/apimachinery"
 
 [[constraint]]
+  branch = "release-1.8"
+  name = "k8s.io/api"
+
+[[constraint]]
+  branch = "release-1.8"
+  name = "k8s.io/apiserver"
+
+[[constraint]]
+  branch = "release-1.8"
+  name = "k8s.io/code-generator"
+
+[[constraint]]
   name = "k8s.io/client-go"
-  version = "3.0.0"
+  version = "^5.0.0"

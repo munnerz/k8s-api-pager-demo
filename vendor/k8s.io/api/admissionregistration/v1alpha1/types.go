@@ -72,13 +72,6 @@ type Initializer struct {
 	// The initializer cares about an operation if it matches _any_ Rule.
 	// Rule.Resources must not include subresources.
 	Rules []Rule `json:"rules,omitempty" protobuf:"bytes,2,rep,name=rules"`
-
-	// FailurePolicy defines what happens if the responsible initializer controller
-	// fails to takes action. Allowed values are Ignore, or Fail. If "Ignore" is
-	// set, initializer is removed from the initializers list of an object if
-	// the timeout is reached; If "Fail" is set, admissionregistration returns timeout error
-	// if the timeout is reached.
-	FailurePolicy *FailurePolicyType `json:"failurePolicy,omitempty" protobuf:"bytes,3,opt,name=failurePolicy,casttype=FailurePolicyType"`
 }
 
 // Rule is a tuple of APIGroups, APIVersion, and Resources.It is recommended
@@ -115,7 +108,7 @@ type Rule struct {
 type FailurePolicyType string
 
 const (
-	// Ignore means the initilizer is removed from the initializers list of an
+	// Ignore means the initializer is removed from the initializers list of an
 	// object if the initializer is timed out.
 	Ignore FailurePolicyType = "Ignore"
 	// For 1.7, only "Ignore" is allowed. "Fail" will be allowed when the
@@ -210,6 +203,10 @@ type AdmissionHookClientConfig struct {
 	// ports open, port 443 will be used if it is open, otherwise it is an error.
 	// Required
 	Service ServiceReference `json:"service" protobuf:"bytes,1,opt,name=service"`
+
+	// URLPath is an optional field that specifies the URL path to use when posting the AdmissionReview object.
+	URLPath string `json:"urlPath" protobuf:"bytes,3,opt,name=urlPath"`
+
 	// CABundle is a PEM encoded CA bundle which will be used to validate webhook's server certificate.
 	// Required
 	CABundle []byte `json:"caBundle" protobuf:"bytes,2,opt,name=caBundle"`
