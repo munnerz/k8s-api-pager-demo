@@ -18,7 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-		"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager"
+	"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager"
 )
 
 // SchemeGroupVersion is group version used to register these objects
@@ -38,10 +38,7 @@ var (
 )
 
 func init() {
-	// We only register manually written functions here. The registration of the
-	// generated functions takes place in the generated files. The separation
-	// makes the code compile even when the generated files are missing.
-	localSchemeBuilder.Register(addKnownTypes, addDefaultingFuncs, addConversionFuncs)
+	localSchemeBuilder.Register(addKnownTypes)
 }
 
 // Adds the list of known types to api.Scheme.

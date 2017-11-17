@@ -5,9 +5,7 @@ import (
 )
 
 // +genclient
-// +k8s:openapi-gen=true
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-// +resource:path=alerts
 
 type Alert struct {
 	metav1.TypeMeta   `json:",inline"`
