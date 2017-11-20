@@ -12,6 +12,6 @@ services:
 script:
 - make verify build
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ]; then
-    mkdir -p ~/.docker && echo "${DOCKER_AUTH_CONFIG}" > ~/.docker/config.json && chmod 600 ~/.docker/config.json;
+    docker login -u="munnerz" -p="${DOCKER_AUTH_PASSWORD}" quay.io;
     make docker_push IMAGE_TAGS="${TRAVIS_COMMIT} latest";
   fi
