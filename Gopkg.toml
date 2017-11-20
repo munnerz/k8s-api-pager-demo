@@ -10,39 +10,67 @@ required = [
   "k8s.io/code-generator/cmd/lister-gen",
 ]
 
-
-# gengo needs to be manually pinned to the version listed in code-generators
-# Gopkg.toml, because the k8s project does not produce Gopkg.toml files & dep
-# does not parse the Godeps.json file to determine revisions to use.
-[[override]]
-  name = "k8s.io/gengo"
-  revision = "9e661e9308f078838e266cca1c673922088c0ea4"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/golang/glog"
-
-[[constraint]]
-  name = "github.com/mitsuse/pushbullet-go"
-  version = "0.1.0"
-
 # Kubernetes dependency pinning
 [[constraint]]
   branch = "release-1.8"
   name = "k8s.io/apimachinery"
+  source = "https://github.com/kubernetes-dep-experiment/apimachinery.git"
 
 [[constraint]]
   branch = "release-1.8"
   name = "k8s.io/api"
+  source = "https://github.com/kubernetes-dep-experiment/api.git"
 
 [[constraint]]
   branch = "release-1.8"
   name = "k8s.io/apiserver"
+  source = "https://github.com/kubernetes-dep-experiment/apiserver.git"
 
 [[constraint]]
   branch = "release-1.8"
   name = "k8s.io/code-generator"
+  source = "https://github.com/kubernetes-dep-experiment/code-generator.git"
 
 [[constraint]]
   name = "k8s.io/client-go"
-  version = "^5.0.0"
+  branch = "release-5.0"
+  source = "https://github.com/kubernetes-dep-experiment/client-go.git"
+
+# We have to fix the version of cobra to one that is compatible with the
+# version of pflag required by the Kubernetes repositories
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  revision = "f62e98d28ab7ad31d707ba837a966378465c7b57"
+
+# Fix Golang dep issues caused by https://github.com/golang/dep/issues/1236
+[[override]]
+  name = "github.com/golang/glog"
+  revision = "44145f04b68cf362d9c4df2182967c2275eaefed"
+
+[[override]]
+  name = "github.com/emicklei/go-restful"
+  revision = "ff4f55a206334ef123e4f79bbf348980da81ca46"
+
+[[override]]
+  name = "github.com/golang/protobuf"
+  revision = "4bd1920723d7b7c925de087aa32e2187708897f7"
+
+[[override]]
+  name = "github.com/grpc-ecosystem/grpc-gateway"
+  revision = "84398b94e188ee336f307779b57b3aa91af7063c"
+
+[[override]]
+  name = "github.com/spf13/pflag"
+  revision = "9ff6c6923cfffbcd502984b8e0c80539a94968b7"
+
+[[override]]
+  name = "github.com/googleapis/gnostic"
+  revision = "0c5108395e2debce0d731cf0287ddf7242066aba"
+
+[[override]]
+  name = "github.com/ugorji/go"
+  revision = "ded73eae5db7e7a0ef6f55aace87a2873c5d2b74"
+
+[[override]]
+  name = "google.golang.org/grpc"
+  revision = "d2e1b51f33ff8c5e4a15560ff049d200e83726c5"
