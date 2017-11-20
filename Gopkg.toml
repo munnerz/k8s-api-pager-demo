@@ -29,12 +29,16 @@ required = [
 [[constraint]]
   branch = "release-1.8"
   name = "k8s.io/code-generator"
-  source = "https://github.com/kubernetes-dep-experiment/code-generator.git"
+  source = "https://github.com/munnerz/code-generator.git"
 
 [[constraint]]
   name = "k8s.io/client-go"
   branch = "release-5.0"
   source = "https://github.com/kubernetes-dep-experiment/client-go.git"
+
+[[override]]
+  name = "k8s.io/gengo"
+  revision = "9e661e9308f078838e266cca1c673922088c0ea4"
 
 # We have to fix the version of cobra to one that is compatible with the
 # version of pflag required by the Kubernetes repositories
