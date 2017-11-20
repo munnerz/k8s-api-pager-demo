@@ -10,8 +10,8 @@ import (
 	"github.com/mitsuse/pushbullet-go"
 	"github.com/mitsuse/pushbullet-go/requests"
 	"k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/workqueue"
 
 	"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
@@ -21,7 +21,9 @@ import (
 
 var (
 	// apiserverURL is the URL of the API server to connect to
-	apiserverURL = flag.String("apiserver", "http://127.0.0.1:8001", "URL used to access the Kubernetes API server")
+	apiserverURL = flag.String("apiserver", "", "Optional URL used to access the Kubernetes API server")
+	// kubeconfig is the URL of the API server to connect to
+	kubeconfig = flag.String("kubeconfig", "", "Optional kubeconfig path used to access the Kubernetes API server")
 	// pushbulletToken is the pushbullet API token to use
 	pushbulletToken = flag.String("pushbullet-token", "", "the api token to use to send pushbullet messages")
 
@@ -55,14 +57,16 @@ func main() {
 
 	log.Printf("Created pushbullet client.")
 
-	var err error
+	cfg, err := clientcmd.BuildConfigFromFlags(*apiserverURL, *kubeconfig)
+	if err != nil {
+		log.Fatalf("Error building kubeconfig: %s", err.Error())
+	}
+
 	// create an instance of our own API client
-	cl, err = client.NewForConfig(&rest.Config{
-		Host: *apiserverURL,
-	})
+	cl, err = client.NewForConfig(cfg)
 
 	if err != nil {
-		log.Fatalf("error creating api client: %s", err.Error())
+		log.Fatalf("Error creating api client: %s", err.Error())
 	}
 
 	log.Printf("Created Kubernetes client.")
