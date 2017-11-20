@@ -14,5 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// This package has the automatically generated fake clientset.
 package fake
+
+import (
+	internalversion "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/internalversion/typed/pager/internalversion"
+	rest "k8s.io/client-go/rest"
+	testing "k8s.io/client-go/testing"
+)
+
+type FakePager struct {
+	*testing.Fake
+}
+
+func (c *FakePager) Alerts(namespace string) internalversion.AlertInterface {
+	return &FakeAlerts{c, namespace}
+}
+
+// RESTClient returns a RESTClient that is used to communicate
+// with API server by this client implementation.
+func (c *FakePager) RESTClient() rest.Interface {
+	var ret *rest.RESTClient
+	return ret
+}

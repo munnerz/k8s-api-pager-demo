@@ -14,5 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// This package contains the scheme of the automatically generated clientset.
-package scheme
+package internalversion
+
+type AlertExpansion interface{}
