@@ -11,8 +11,11 @@ CODEGEN_PKG=${CODEGEN_PKG:-$(cd ${SCRIPT_ROOT}; ls -d -1 ./vendor/k8s.io/code-ge
 # --output-base    because this script should also be able to run inside the vendor dir of
 #                  k8s.io/kubernetes. The output-base is needed for the generators to output into the vendor dir
 #                  instead of the $GOPATH directly. For normal projects this can be dropped.
-${CODEGEN_PKG}/generate-groups.sh "deepcopy,client,informer,lister" \
-  github.com/munnerz/k8s-api-pager-demo/pkg/client github.com/munnerz/k8s-api-pager-demo/pkg/apis \
-  pager:v1alpha1
+${CODEGEN_PKG}/generate-internal-groups.sh all \
+  github.com/munnerz/k8s-api-pager-demo/pkg/client \
+  github.com/munnerz/k8s-api-pager-demo/pkg/apis \
+  github.com/munnerz/k8s-api-pager-demo/pkg/apis \
+  pager:v1alpha1 \
+  "$@"
 # To use your own boilerplate text append:
 #   --go-header-file ${SCRIPT_ROOT}/hack/custom-boilerplate.go.txt

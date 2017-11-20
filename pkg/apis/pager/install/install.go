@@ -30,7 +30,6 @@ func Install(groupFactoryRegistry announced.APIGroupFactoryRegistry, registry *r
 		&announced.GroupMetaFactoryArgs{
 			GroupName:                  pager.GroupName,
 			VersionPreferenceOrder:     []string{v1alpha1.SchemeGroupVersion.Version},
-			ImportPrefix:               "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager",
 			AddInternalObjectsToScheme: pager.AddToScheme,
 		},
 		announced.VersionToSchemeFunc{
