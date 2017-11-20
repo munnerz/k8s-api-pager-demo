@@ -65,8 +65,8 @@ type Config struct {
 	SharedInformerFactory informers.SharedInformerFactory
 }
 
-// NavigatorServer contains state for a Kubernetes cluster master/api server.
-type NavigatorServer struct {
+// PagerServer contains state for a Kubernetes cluster master/api server.
+type PagerServer struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
 }
 
@@ -93,14 +93,14 @@ func (c *Config) SkipComplete() completedConfig {
 	return completedConfig{Config: c, completedConfig: &completedCfg}
 }
 
-// New returns a new instance of NavigatorServer from the given config.
-func (c completedConfig) New() (*NavigatorServer, error) {
-	genericServer, err := c.completedConfig.New("navigator", genericapiserver.EmptyDelegate) // completion is done in Complete, no need for a second time
+// New returns a new instance of PagerServer from the given config.
+func (c completedConfig) New() (*PagerServer, error) {
+	genericServer, err := c.completedConfig.New("pager", genericapiserver.EmptyDelegate) // completion is done in Complete, no need for a second time
 	if err != nil {
 		return nil, err
 	}
 
-	s := &NavigatorServer{
+	s := &PagerServer{
 		GenericAPIServer: genericServer,
 	}
 
