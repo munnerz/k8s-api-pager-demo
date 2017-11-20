@@ -1,0 +1,17 @@
+dist: trusty
+
+language: go
+
+go: 1.9
+
+go_import_path: github.com/munnerz/k8s-api-pager-demo
+
+services:
+- docker
+
+script:
+- make verify build
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_BRANCH}" = "master" ]; then
+    mkdir -p ~/.docker && echo "${DOCKER_AUTH_CONFIG}" > ~/.docker/config.json && chmod 600 ~/.docker/config.json;
+    make docker_push IMAGE_TAGS="${TRAVIS_COMMIT} latest";
+  fi

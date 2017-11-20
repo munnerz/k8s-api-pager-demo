@@ -16,6 +16,5 @@ ${CODEGEN_PKG}/generate-internal-groups.sh all \
   github.com/munnerz/k8s-api-pager-demo/pkg/apis \
   github.com/munnerz/k8s-api-pager-demo/pkg/apis \
   pager:v1alpha1 \
+  --go-header-file ${SCRIPT_ROOT}/hack/boilerplate.go.txt \
   "$@"
-# To use your own boilerplate text append:
-#   --go-header-file ${SCRIPT_ROOT}/hack/custom-boilerplate.go.txt

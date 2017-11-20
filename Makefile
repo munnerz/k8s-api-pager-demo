@@ -7,7 +7,7 @@ HACK_DIR ?= hack
 BUILD_TAG := build
 
 # Get a list of all binaries to be built
-CMDS := $(shell find ./cmd/ -type d -depth 1 -exec basename {} \; )
+CMDS := $(shell find ./cmd/ -maxdepth 1 -type d -exec basename {} \; | grep -v cmd)
 # Path to dockerfiles directory
 DOCKERFILES := $(HACK_DIR)/build/dockerfiles
 # A list of all types.go files in pkg/apis
@@ -17,10 +17,12 @@ DOCKER_BUILD_TARGETS = $(addprefix docker_build_, $(CMDS))
 # docker_push_controller, docker_push_apiserver etc
 DOCKER_PUSH_TARGETS = $(addprefix docker_push_, $(CMDS))
 
+.PHONY: verify build docker_build push generate generate_verify $(CMDS) go_test go_fmt $(DOCKER_BUILD_TARGETS) $(DOCKER_PUSH_TARGETS)
 
 # Alias targets
 ###############
 
+verify: generate_verify go_verify
 build: $(CMDS) docker_build
 docker_build: $(DOCKER_BUILD_TARGETS)
 docker_push: $(DOCKER_PUSH_TARGETS)
@@ -32,9 +34,12 @@ push: build docker_push
 generate: $(TYPES_FILES)
 	$(HACK_DIR)/update-codegen.sh
 
+generate_verify:
+	$(HACK_DIR)/verify-codegen.sh
+
 # Go targets
 #################
-go_verify: go_fmt go_test go_build
+go_verify: go_fmt go_test
 
 $(CMDS):
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags netgo -ldflags '-w' -o $(DOCKERFILES)/pager-$@_linux_amd64 ./cmd/$@
@@ -56,7 +61,6 @@ go_fmt:
 $(DOCKER_BUILD_TARGETS):
 	$(eval DOCKER_BUILD_CMD := $(subst docker_build_,,$@))
 	docker build -t $(REGISTRY)/$(IMAGE_NAME)-$(DOCKER_BUILD_CMD):$(BUILD_TAG) -f $(DOCKERFILES)/$(DOCKER_BUILD_CMD)/Dockerfile $(DOCKERFILES)
-docker_build: $(DOCKER_BUILD_TARGETS)
 
 $(DOCKER_PUSH_TARGETS):
 	$(eval DOCKER_PUSH_CMD := $(subst docker_push_,,$@))

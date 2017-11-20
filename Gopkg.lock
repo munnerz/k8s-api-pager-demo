@@ -340,8 +340,8 @@
   branch = "release-1.8"
   name = "k8s.io/code-generator"
   packages = ["cmd/client-gen","cmd/client-gen/args","cmd/client-gen/generators","cmd/client-gen/generators/fake","cmd/client-gen/generators/scheme","cmd/client-gen/generators/util","cmd/client-gen/path","cmd/client-gen/types","cmd/conversion-gen","cmd/conversion-gen/generators","cmd/deepcopy-gen","cmd/defaulter-gen","cmd/informer-gen","cmd/informer-gen/generators","cmd/lister-gen","cmd/lister-gen/generators"]
-  revision = "d54007f8da9501213e08608f0cad9baed20c4b7d"
-  source = "https://github.com/kubernetes-dep-experiment/code-generator.git"
+  revision = "241531e20b9e2c1540b08d61ed5ca52508c1d9dd"
+  source = "https://github.com/munnerz/code-generator.git"
 
 [[projects]]
   name = "k8s.io/gengo"
@@ -356,6 +356,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ba00c5a0aad1d03c0e5f6f53fcf1ef625996d555481ee4c489615e2e2e6dd988"
+  inputs-digest = "14afae5e561982d4a85f6cbe59914e9c9d56a1eba3ce351a499576833cca9b50"
   solver-name = "gps-cdcl"
   solver-version = 1
