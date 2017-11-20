@@ -132,12 +132,13 @@ func sync(al *v1alpha1.Alert) error {
 	}
 	log.Printf("Sent pushbullet note!")
 
+	newAl := al.DeepCopy()
 	// as we've sent the note, we will update the resource accordingly.
 	// if this request fails, this item will be requeued and a second alert
 	// will be sent. It's therefore worth noting that this control loop will
 	// send you *at least one* alert, and not *at most one*.
-	al.Status.Sent = true
-	if _, err := cl.PagerV1alpha1().Alerts(al.Namespace).Update(al); err != nil {
+	newAl.Status.Sent = true
+	if _, err := cl.PagerV1alpha1().Alerts(al.Namespace).UpdateStatus(newAl); err != nil {
 		return fmt.Errorf("error saving update to pager Alert resource: %s", err.Error())
 	}
 	log.Printf("Finished saving update to pager Alert resource '%s/%s'", al.Namespace, al.Name)
