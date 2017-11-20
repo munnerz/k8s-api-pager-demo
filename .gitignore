@@ -1,2 +1,4 @@
-/k8s-api-pager-demo
 /.idea/
+pager-controller_*
+pager-apiserver_*
+/apiserver.local.config/
