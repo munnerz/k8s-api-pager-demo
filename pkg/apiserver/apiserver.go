@@ -104,16 +104,28 @@ func (c completedConfig) New() (*PagerServer, error) {
 		GenericAPIServer: genericServer,
 	}
 
+	// create a new api group structure
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(pager.GroupName, registry, Scheme, metav1.ParameterCodec, Codecs)
+	// set the preferred version for the group
 	apiGroupInfo.GroupMeta.GroupVersion = v1alpha1.SchemeGroupVersion
-	v1alpha1storage := map[string]rest.Storage{}
+
+	// create a REST storage backend for alerts
 	alertStorage, alertStatusStorage, err := alertstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
 	if err != nil {
 		return nil, err
 	}
+
+	// create a rest mapper for v1alpha1 resources
+	v1alpha1storage := map[string]rest.Storage{}
 	v1alpha1storage["alerts"] = alertStorage
 	v1alpha1storage["alerts/status"] = alertStatusStorage
 	apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+
+	// create a rest mapper for v1beta1 resources
+	v1beta1storage := map[string]rest.Storage{}
+	v1beta1storage["alerts"] = alertStorage
+	v1beta1storage["alerts/status"] = alertStatusStorage
+	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1storage
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 		return nil, err
