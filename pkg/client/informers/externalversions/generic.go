@@ -21,6 +21,7 @@ package externalversions
 import (
 	"fmt"
 	v1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
+	v1beta1 "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1beta1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -54,6 +55,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=Pager, Version=V1alpha1
 	case v1alpha1.SchemeGroupVersion.WithResource("alerts"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Pager().V1alpha1().Alerts().Informer()}, nil
+
+		// Group=Pager, Version=V1beta1
+	case v1beta1.SchemeGroupVersion.WithResource("alerts"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Pager().V1beta1().Alerts().Informer()}, nil
 
 	}
 

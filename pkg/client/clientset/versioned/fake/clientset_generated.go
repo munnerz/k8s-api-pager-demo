@@ -20,6 +20,8 @@ import (
 	clientset "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned"
 	pagerv1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned/typed/pager/v1alpha1"
 	fakepagerv1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned/typed/pager/v1alpha1/fake"
+	pagerv1beta1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned/typed/pager/v1beta1"
+	fakepagerv1beta1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned/typed/pager/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -65,7 +67,12 @@ func (c *Clientset) PagerV1alpha1() pagerv1alpha1.PagerV1alpha1Interface {
 	return &fakepagerv1alpha1.FakePagerV1alpha1{Fake: &c.Fake}
 }
 
-// Pager retrieves the PagerV1alpha1Client
-func (c *Clientset) Pager() pagerv1alpha1.PagerV1alpha1Interface {
-	return &fakepagerv1alpha1.FakePagerV1alpha1{Fake: &c.Fake}
+// PagerV1beta1 retrieves the PagerV1beta1Client
+func (c *Clientset) PagerV1beta1() pagerv1beta1.PagerV1beta1Interface {
+	return &fakepagerv1beta1.FakePagerV1beta1{Fake: &c.Fake}
+}
+
+// Pager retrieves the PagerV1beta1Client
+func (c *Clientset) Pager() pagerv1beta1.PagerV1beta1Interface {
+	return &fakepagerv1beta1.FakePagerV1beta1{Fake: &c.Fake}
 }
