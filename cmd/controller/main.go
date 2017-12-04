@@ -138,7 +138,9 @@ func sync(al *v1alpha1.Alert) error {
 	// will be sent. It's therefore worth noting that this control loop will
 	// send you *at least one* alert, and not *at most one*.
 	newAl.Status.Sent = true
-	if _, err := cl.PagerV1alpha1().Alerts(al.Namespace).UpdateStatus(newAl); err != nil {
+	// we call Update instead of UpdateStatus in order to support CRD types as well
+	// as the full API server running option
+	if _, err := cl.PagerV1alpha1().Alerts(al.Namespace).Update(newAl); err != nil {
 		return fmt.Errorf("error saving update to pager Alert resource: %s", err.Error())
 	}
 	log.Printf("Finished saving update to pager Alert resource '%s/%s'", al.Namespace, al.Name)
