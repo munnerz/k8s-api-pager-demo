@@ -25,6 +25,7 @@ type AlertList struct {
 }
 
 type AlertSpec struct {
+	Title   string
 	Message string
 }
 

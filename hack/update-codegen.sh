@@ -15,6 +15,6 @@ ${CODEGEN_PKG}/generate-internal-groups.sh all \
   github.com/munnerz/k8s-api-pager-demo/pkg/client \
   github.com/munnerz/k8s-api-pager-demo/pkg/apis \
   github.com/munnerz/k8s-api-pager-demo/pkg/apis \
-  pager:v1alpha1 \
+  pager:v1alpha1,v1beta1 \
   --go-header-file ${SCRIPT_ROOT}/hack/boilerplate.go.txt \
   "$@"

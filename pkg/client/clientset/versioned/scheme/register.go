@@ -18,6 +18,7 @@ package scheme
 
 import (
 	pagerv1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
+	pagerv1beta1 "github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -49,5 +50,6 @@ func init() {
 // correctly.
 func AddToScheme(scheme *runtime.Scheme) {
 	pagerv1alpha1.AddToScheme(scheme)
+	pagerv1beta1.AddToScheme(scheme)
 
 }

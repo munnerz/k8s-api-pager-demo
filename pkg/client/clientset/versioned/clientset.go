@@ -19,6 +19,7 @@ package versioned
 import (
 	glog "github.com/golang/glog"
 	pagerv1alpha1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned/typed/pager/v1alpha1"
+	pagerv1beta1 "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned/typed/pager/v1beta1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -27,8 +28,9 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	PagerV1alpha1() pagerv1alpha1.PagerV1alpha1Interface
+	PagerV1beta1() pagerv1beta1.PagerV1beta1Interface
 	// Deprecated: please explicitly pick a version if possible.
-	Pager() pagerv1alpha1.PagerV1alpha1Interface
+	Pager() pagerv1beta1.PagerV1beta1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
@@ -36,6 +38,7 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	pagerV1alpha1 *pagerv1alpha1.PagerV1alpha1Client
+	pagerV1beta1  *pagerv1beta1.PagerV1beta1Client
 }
 
 // PagerV1alpha1 retrieves the PagerV1alpha1Client
@@ -43,10 +46,15 @@ func (c *Clientset) PagerV1alpha1() pagerv1alpha1.PagerV1alpha1Interface {
 	return c.pagerV1alpha1
 }
 
+// PagerV1beta1 retrieves the PagerV1beta1Client
+func (c *Clientset) PagerV1beta1() pagerv1beta1.PagerV1beta1Interface {
+	return c.pagerV1beta1
+}
+
 // Deprecated: Pager retrieves the default version of PagerClient.
 // Please explicitly pick a version.
-func (c *Clientset) Pager() pagerv1alpha1.PagerV1alpha1Interface {
-	return c.pagerV1alpha1
+func (c *Clientset) Pager() pagerv1beta1.PagerV1beta1Interface {
+	return c.pagerV1beta1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -69,6 +77,10 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 	if err != nil {
 		return nil, err
 	}
+	cs.pagerV1beta1, err = pagerv1beta1.NewForConfig(&configShallowCopy)
+	if err != nil {
+		return nil, err
+	}
 
 	cs.DiscoveryClient, err = discovery.NewDiscoveryClientForConfig(&configShallowCopy)
 	if err != nil {
@@ -83,6 +95,7 @@ func NewForConfig(c *rest.Config) (*Clientset, error) {
 func NewForConfigOrDie(c *rest.Config) *Clientset {
 	var cs Clientset
 	cs.pagerV1alpha1 = pagerv1alpha1.NewForConfigOrDie(c)
+	cs.pagerV1beta1 = pagerv1beta1.NewForConfigOrDie(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
@@ -92,6 +105,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
 	cs.pagerV1alpha1 = pagerv1alpha1.New(c)
+	cs.pagerV1beta1 = pagerv1beta1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs
