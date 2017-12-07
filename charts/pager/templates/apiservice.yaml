@@ -1,0 +1,41 @@
+{{- if .Values.createAPIService -}}
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1alpha1.pager.k8s.co
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: apiserver
+spec:
+  insecureSkipTLSVerify: true
+  group: pager.k8s.co
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: {{ template "fullname" . }}-apiserver
+    namespace: {{ .Release.Namespace }}
+  version: v1alpha1
+---
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1beta1.pager.k8s.co
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: apiserver
+spec:
+  insecureSkipTLSVerify: true
+  group: pager.k8s.co
+  groupPriorityMinimum: 1000
+  versionPriority: 20
+  service:
+    name: {{ template "fullname" . }}-apiserver
+    namespace: {{ .Release.Namespace }}
+  version: v1beta1
+{{- end -}}

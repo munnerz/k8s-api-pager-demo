@@ -1,0 +1,53 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}-controller
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+      component: controller
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+        component: controller
+    spec:
+{{- if .Values.controller.serviceAccount }}
+      serviceAccountName: {{ .Values.controller.serviceAccount }}
+      serviceAccount: {{ .Values.controller.serviceAccount }}
+{{- else }}
+      serviceAccountName: {{ template "fullname" . }}-controller
+      serviceAccount: {{ template "fullname" . }}-controller
+{{- end }}
+      containers:
+        - name: controller
+          image: "{{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag }}"
+          args:
+          - -pushbullet-token=$(PUSHBULLET_TOKEN)
+{{ toYaml .Values.apiserver.extraArgs | indent 10 }}
+          imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
+          env:
+          - name: PUSHBULLET_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}-controller
+                key: pushbullet-token
+          volumeMounts:
+          - name: etcsslcerts
+            mountPath: /etc/ssl/certs
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: etcsslcerts
+        hostPath:
+          path: /etc/ssl/certs

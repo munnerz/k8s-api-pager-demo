@@ -1,0 +1,46 @@
+# Default values for pager.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+createAPIService: true
+
+rbac:
+  enabled: true
+
+apiserver:
+  ## Set to true to skip deploying the apiserver components RBAC policies,
+  ## which require cluster admin access to deploy.
+  rbacDisabled: false
+
+  ## Extra arguments to pass to the pager-apiserver
+  extraArgs:
+  - --v=4
+#  - --requestheader-client-ca-file=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+#  - --requestheader-username-headers=X-Remote-User
+#  - --requestheader-group-headers=X-Remote-Group
+#  - --requestheader-extra-headers-prefix=X-Remote-Extra  - --proxy-client-cert-file="${CERT_DIR}/client-auth-proxy.crt"
+
+  ## Optional: if not set, a service account will be automatically created
+  # serviceAccount: "apiserver-svc-acct"
+  image:
+    repository: quay.io/munnerz/pager-apiserver
+    tag: latest
+    pullPolicy: Always
+
+controller:
+  ## Extra arguments to pass to the pager-controller
+  extraArgs:
+  - --v=4
+
+  pushbulletToken: replace-me
+
+  ## Optional: if not set, a service account will be automatically created
+  # serviceAccount: "controller-svc-acct"
+  image:
+    repository: quay.io/munnerz/pager-controller
+    tag: latest
+    pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
