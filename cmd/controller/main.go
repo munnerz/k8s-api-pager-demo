@@ -122,7 +122,7 @@ func sync(al *v1beta1.Alert) error {
 
 	// create our note instance
 	note := requests.NewNote()
-	note.Title := fmt.Sprintf("Kubernetes alert for %s/%s", al.Namespace, al.Name)
+	note.Title = fmt.Sprintf("Kubernetes alert for %s/%s", al.Namespace, al.Name)
 	if al.Spec.Title != "" {
 		note.Title = al.Spec.Title
 	}
