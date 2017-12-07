@@ -14,7 +14,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/workqueue"
 
-	"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1alpha1"
+	"github.com/munnerz/k8s-api-pager-demo/pkg/apis/pager/v1beta1"
 	client "github.com/munnerz/k8s-api-pager-demo/pkg/client/clientset/versioned"
 	factory "github.com/munnerz/k8s-api-pager-demo/pkg/client/informers/externalversions"
 )
@@ -77,7 +77,7 @@ func main() {
 	// create/replace/update/delete operations are missed when watching
 	sharedFactory = factory.NewSharedInformerFactory(cl, time.Second*30)
 
-	informer := sharedFactory.Pager().V1alpha1().Alerts().Informer()
+	informer := sharedFactory.Pager().V1beta1().Alerts().Informer()
 	// we add a new event handler, watching for changes to API resources.
 	informer.AddEventHandler(
 		cache.ResourceEventHandlerFuncs{
@@ -113,7 +113,7 @@ func main() {
 // has already been sent, and if not will send it and update the resource
 // accordingly. This method is called whenever this controller starts, and
 // whenever the resource changes, and also periodically every resyncPeriod.
-func sync(al *v1alpha1.Alert) error {
+func sync(al *v1beta1.Alert) error {
 	// If this message has already been sent, we exit with no error
 	if al.Status.Sent {
 		log.Printf("Skipping already Sent alert '%s/%s'", al.Namespace, al.Name)
@@ -122,8 +122,11 @@ func sync(al *v1alpha1.Alert) error {
 
 	// create our note instance
 	note := requests.NewNote()
-	note.Title = fmt.Sprintf("Kubernetes alert for %s/%s", al.Namespace, al.Name)
-	note.Body = al.Spec.Message
+	note.Title := fmt.Sprintf("Kubernetes alert for %s/%s", al.Namespace, al.Name)
+	if al.Spec.Title != "" {
+		note.Title = al.Spec.Title
+	}
+	note.Body = al.Spec.Content
 
 	// send the note. If an error occurs here, we return an error which will
 	// cause the calling function to re-queue the item to be tried again later.
@@ -140,7 +143,7 @@ func sync(al *v1alpha1.Alert) error {
 	newAl.Status.Sent = true
 	// we call Update instead of UpdateStatus in order to support CRD types as well
 	// as the full API server running option
-	if _, err := cl.PagerV1alpha1().Alerts(al.Namespace).Update(newAl); err != nil {
+	if _, err := cl.PagerV1beta1().Alerts(al.Namespace).Update(newAl); err != nil {
 		return fmt.Errorf("error saving update to pager Alert resource: %s", err.Error())
 	}
 	log.Printf("Finished saving update to pager Alert resource '%s/%s'", al.Namespace, al.Name)
@@ -186,7 +189,7 @@ func work() {
 			log.Printf("Read item '%s/%s' off workqueue. Processing...", namespace, name)
 
 			// retrieve the latest version in the cache of this alert
-			obj, err := sharedFactory.Pager().V1alpha1().Alerts().Lister().Alerts(namespace).Get(name)
+			obj, err := sharedFactory.Pager().V1beta1().Alerts().Lister().Alerts(namespace).Get(name)
 
 			if err != nil {
 				runtime.HandleError(fmt.Errorf("error getting object '%s/%s' from api: %s", namespace, name, err.Error()))

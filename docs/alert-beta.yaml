@@ -1,0 +1,7 @@
+apiVersion: pager.k8s.co/v1beta1
+kind: Alert
+metadata:
+  name: kubecon-alert-beta
+spec:
+  title: "Informational message"
+  content: "Hello KubeCon :wave:"
